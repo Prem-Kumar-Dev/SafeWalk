@@ -1,0 +1,4 @@
+pipeline/data/
+pipeline/cache*/
+pipeline/out/
+__pycache__/

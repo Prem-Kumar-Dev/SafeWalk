@@ -1,0 +1,34 @@
+{
+  "groups": [
+    "base",
+    "harm",
+    "ctx",
+    "s311",
+    "lic",
+    "cta",
+    "events"
+  ],
+  "train_weeks": 300,
+  "valid_weeks": 13,
+  "seeds": [
+    0,
+    1,
+    2
+  ],
+  "harm_target": false,
+  "kde_best": {
+    "s_space": 0.25,
+    "s_time": 5
+  },
+  "params": {},
+  "net": {
+    "weight": 0.3,
+    "train_weeks": 156,
+    "epochs": 19,
+    "seeds": [
+      0,
+      1,
+      2
+    ]
+  }
+}
