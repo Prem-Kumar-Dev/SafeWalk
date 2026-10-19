@@ -42,17 +42,28 @@ Maven repository. Expect a few small compile fixes on the first Android Studio b
 ## Data
 
 - Downloads `manifest.json` from `BuildConfig.DATA_BASE` (GitHub Pages), falling back to `DATA_MIRROR` (jsDelivr),
-  at most every 6 hours, with ETag. Both are set in `app/build.gradle.kts` and currently point at
-  `Prem-Kumar-Dev/safewalk-data`; change them if the data repo lives elsewhere.
+  at most every 6 hours, with ETag. Both are set in `app/build.gradle.kts` and point at `v1/chicago/` in
+  `Prem-Kumar-Dev/SafeWalk`, where the weekly job publishes.
 - Verifies size, SHA-256, raw size, graph id and edge counts before swapping graph and risk in together
   (`DataRepository`). A bad download never replaces working data. A bad risk file means Direct-only routing.
 - `style.json` next to the manifest can switch the map style without an app release.
 
 ### Bundled data
 
-`app/src/main/assets/data/` currently holds files converted from the web demo's forecast (week of 30 Dec 2024)
-with `tools/demo_to_v1.py`; they pass `app-spec/reference/safewalk_format.py validate`. Replace them with the
-pipeline's first real published folder (manifest.json, graph-*.bin, risk-*.bin, style.json) before release.
+`app/src/main/assets/data/` holds a copy of the published `v1/chicago/` folder (model 2026.43, week of 19 Oct 2026):
+the manifest, the graph and risk files it names, and `style.json`. The app replaces it with newer weeks on its own;
+the bundled copy only matters for the first launch offline. To refresh it for both apps before a release, run this
+from the repo root, then `python3 app-spec/reference/safewalk_format.py validate <folder>` on each:
+
+```
+python3 - <<'PY'
+import json, shutil, glob, os
+src = "v1/chicago"; m = json.load(open(f"{src}/manifest.json"))
+for dst in ["android/app/src/main/assets/data", "ios/SafeWalk/Data"]:
+    for f in glob.glob(f"{dst}/*"): os.remove(f)
+    for f in ["manifest.json", "style.json", m["graph"]["path"], m["risk"]["path"]]: shutil.copy(f"{src}/{f}", dst)
+PY
+```
 
 ## Spec decisions followed
 
@@ -65,5 +76,5 @@ pipeline's first real published folder (manifest.json, graph-*.bin, risk-*.bin, 
 ## Before release
 
 - Set `feedback_email` in `res/values/strings.xml` (the About screen hides the line while it's empty).
-- Replace the bundled data with real pipeline output.
+- Refresh the bundled data (see "Bundled data").
 - Add a release signing config.

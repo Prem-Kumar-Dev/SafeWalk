@@ -64,10 +64,10 @@ The test is the original one: 250 random 1 to 4 km walks, with the risk map buil
 
 ## Weekly retraining, free
 
-- **Where it runs:** GitHub Actions on a **public** repository, which gets unlimited free minutes. GitHub Pages serves the files at the URL the app spec expects (`https://<user>.github.io/safewalk-data/v1/chicago/`), with jsDelivr as the mirror.
-- **Setup:**
-  1. Create a public repo named `safewalk-data`.
-  2. Put the contents of `pipeline/` in a `pipeline/` folder and move `pipeline/.github` to the repo root.
+- **Where it runs:** GitHub Actions on a **public** repository, which gets unlimited free minutes. GitHub Pages serves the files at the URL the app spec expects (`https://prem-kumar-dev.github.io/SafeWalk/v1/chicago/`), with jsDelivr as the mirror.
+- **Setup:** this repository already has it: `pipeline/`, the workflow in `.github/workflows/weekly.yml`, and the published `v1/chicago/`. In a fresh copy:
+  1. Keep the repository public (free minutes, and Pages on a free plan).
+  2. Keep `pipeline/` and `.github/workflows/weekly.yml` where they are.
   3. Turn on Pages (Settings → Pages → Deploy from branch `main`, root).
   4. Optionally add a free Socrata app token as the secret `SOCRATA_APP_TOKEN`.
 - **What a run does:** every Monday at 09:00 UTC it downloads the new data, retrains, validates and commits `v1/chicago/`. It fails instead of publishing if validation fails. Risk files stay published for 8 weeks.

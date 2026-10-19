@@ -32,6 +32,14 @@ class FixtureTest {
         assertNull(data.graph.name(5))
     }
 
+    @Test fun acceptsAnyModelFields() {
+        // The live manifest carries numbers in "model" (e.g. "rounds": 829); they must not break loading.
+        val text = manifestText.replace(Regex("\"model\"\\s*:\\s*\\{"), "\"model\": {\"rounds\": 829, \"seeds\": [1, 2], ")
+        val m = SafeWalkFormat.parseManifest(text)
+        assertEquals(829, m.model["rounds"]!!.jsonPrimitive.int)
+        assertEquals(manifest.model["name"], m.model["name"])
+    }
+
     @Test fun rejectsTamperedRisk() {
         val bad = res(manifest.risk.path).also { it[10] = (it[10] + 1).toByte() }
         val d = DataLoader.load(manifestText, res(manifest.graph.path), bad)

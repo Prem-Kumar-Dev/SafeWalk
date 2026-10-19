@@ -117,7 +117,7 @@ fun AboutScreen(s: UiState, vm: SafeWalkViewModel) {
         val ready = s.data as? DataState.Ready
         if (ready != null) {
             val m = ready.data.manifest
-            Text(stringResource(R.string.about_model, m.model["version"] ?: m.model["name"] ?: "?", m.risk.weekStart),
+            Text(stringResource(R.string.about_model, m.modelText("version") ?: m.modelText("name") ?: "?", m.risk.weekStart),
                 style = MaterialTheme.typography.bodySmall)
         }
         val email = stringResource(R.string.feedback_email)

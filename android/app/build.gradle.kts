@@ -17,8 +17,8 @@ android {
         versionName = "1.0.0"
 
         // Static data folder on GitHub Pages, with the jsDelivr mirror as fallback (app-spec/02-data-files.md).
-        buildConfigField("String", "DATA_BASE", "\"https://prem-kumar-dev.github.io/safewalk-data/v1/chicago/\"")
-        buildConfigField("String", "DATA_MIRROR", "\"https://cdn.jsdelivr.net/gh/Prem-Kumar-Dev/safewalk-data@main/v1/chicago/\"")
+        buildConfigField("String", "DATA_BASE", "\"https://prem-kumar-dev.github.io/SafeWalk/v1/chicago/\"")
+        buildConfigField("String", "DATA_MIRROR", "\"https://cdn.jsdelivr.net/gh/Prem-Kumar-Dev/SafeWalk@main/v1/chicago/\"")
         buildConfigField("String", "DEFAULT_STYLE", "\"https://tiles.openfreemap.org/styles/liberty\"")
         buildConfigField("String", "DARK_STYLE", "\"https://tiles.openfreemap.org/styles/dark\"")
     }

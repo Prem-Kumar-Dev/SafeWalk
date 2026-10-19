@@ -1,5 +1,5 @@
 # Weekly SafeWalk retrain + publish. Free: public repositories get unlimited GitHub Actions minutes,
-# and GitHub Pages serves v1/ at https://<user>.github.io/safewalk-data/v1/chicago/.
+# and GitHub Pages serves v1/ at https://prem-kumar-dev.github.io/SafeWalk/v1/chicago/.
 name: weekly-retrain
 on:
   schedule:

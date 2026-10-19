@@ -5,30 +5,32 @@
   "display_name": "Chicago",
   "timezone": "America/Chicago",
   "bbox": [
-    41.644588,
-    -87.855829,
-    42.022929,
-    -87.524532
+    41.644584,
+    -87.855835,
+    42.022927,
+    -87.524527
   ],
-  "generated_at": "2026-10-18T00:00:00Z",
+  "generated_at": "2026-10-18T19:10:27Z",
   "graph": {
-    "path": "graph-0917194143489af4.bin",
-    "graph_id": "0917194143489af4",
-    "bytes": 530458,
-    "raw_bytes": 1287151,
-    "sha256": "edb255169b84b6e52bb76584b4ab39d411a9d14f2caa044fed6b90df5c613368"
+    "path": "graph-f64f602807eddbe1.bin",
+    "graph_id": "f64f602807eddbe1",
+    "bytes": 660763,
+    "raw_bytes": 1309966,
+    "sha256": "bfa72b5c01a7a705bbc3aaa6f5e3520e161e4af2cc37186ac121f5da2b90f5a6"
   },
   "risk": {
-    "path": "risk-2024-12-30-9d8bbce14907.bin",
-    "week_start": "2024-12-30",
-    "valid_until": "2025-01-06",
-    "bytes": 295198,
+    "path": "risk-2026-10-19-3acdc3f10c1c.bin",
+    "week_start": "2026-10-19",
+    "valid_until": "2026-10-26",
+    "bytes": 529796,
     "raw_bytes": 1226412,
-    "sha256": "9d8bbce1490785176fb8039470278962229193a561c0d59394a8f7a676a6b6ed"
+    "sha256": "3acdc3f10c1c7cc185fb19f9a0ecee19238275c7f6dce0d166af11faa6428c76"
   },
   "model": {
-    "name": "demo-lightgbm-poisson",
-    "version": "demo-2024-12-30",
-    "trained_through": "2024-12-29"
+    "name": "lightgbm-poisson+stnet",
+    "version": "2026.43",
+    "trained_through": "2026-10-04",
+    "features": "base+harm+ctx+s311+lic+cta+events",
+    "rounds": 829
   }
 }
