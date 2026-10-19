@@ -1,7 +1,7 @@
 # Generate the Xcode project on a Mac with:  brew install xcodegen && xcodegen
 name: SafeWalk
 options:
-  bundleIdPrefix: com.example.safewalk   # change to your own reverse-DNS prefix before shipping
+  bundleIdPrefix: com.prem
   deploymentTarget:
     iOS: "16.0"
   createIntermediateGroups: true
@@ -37,6 +37,7 @@ targets:
         ITSAppUsesNonExemptEncryption: false
     settings:
       base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.prem.safewalk
         SWIFT_VERSION: "5.0"
         TARGETED_DEVICE_FAMILY: "1"
         CODE_SIGN_STYLE: Automatic
@@ -58,6 +59,7 @@ targets:
       - target: SafeWalk
     settings:
       base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.prem.safewalk.tests
         SWIFT_VERSION: "5.0"
 
 schemes:

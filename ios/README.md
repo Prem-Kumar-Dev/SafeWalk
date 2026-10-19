@@ -14,8 +14,8 @@ xcodegen                 # writes SafeWalk.xcodeproj from project.yml
 open SafeWalk.xcodeproj
 ```
 
-1. In Xcode, pick the **SafeWalk** target > Signing & Capabilities and choose your team. Change the bundle id
-   (`com.example.safewalk.SafeWalk`) to your own.
+1. In Xcode, pick the **SafeWalk** target > Signing & Capabilities and choose your team. The bundle id is
+   `com.prem.safewalk` (set in `project.yml`).
 2. Xcode downloads MapLibre the first time (File > Packages > Resolve if it doesn't).
 3. Run on an iPhone simulator or your phone. Routing works anywhere in Chicago. In the simulator, set a Chicago
    location with Features > Location > Custom (e.g. 41.8815, -87.6275).
