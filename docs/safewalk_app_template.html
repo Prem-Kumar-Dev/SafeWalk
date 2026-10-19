@@ -1,0 +1,410 @@
+<title>SafeWalk Chicago</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700;800&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: control rail on the left (stacked under the map on phones), the street map fills the rest. */
+:root {
+  --bg: #f3f5f7; --panel: #ffffff; --ink: #121820; --ink-2: #4a5562; --ink-3: #7b8692; --line: #dde2e7;
+  --map: #eaeef1; --street: #c4ccd3; --street-major: #aab4bd;
+  --risk-1: #f2b26a; --risk-2: #e2702b; --risk-3: #b53b16;
+  --safe: #1d67c9; --safe-halo: #ffffff; --direct: #2b333c;
+  --warn-bg: #fff3e8; --warn-line: #e2702b; --ok-bg: #edf5ec; --ok-line: #3f8a3a;
+  --chip: #eef1f4; --chip-on: #121820; --chip-on-ink: #ffffff;
+  --label: #5c6773; --lake: #6f8fae;
+  --f-display: "Archivo", "Helvetica Neue", Arial, sans-serif;
+  --f-body: "Archivo", "Helvetica Neue", Arial, sans-serif;
+  --f-mono: "IBM Plex Mono", ui-monospace, "SFMono-Regular", Menlo, monospace;
+}
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
+  --bg: #0e1215; --panel: #151a1f; --ink: #e7ebee; --ink-2: #aab3bc; --ink-3: #7c8691; --line: #262e35;
+  --map: #12171b; --street: #2a333b; --street-major: #3a444d;
+  --risk-1: #9c5a22; --risk-2: #e0782f; --risk-3: #ffad74;
+  --safe: #5ea4ff; --safe-halo: #0e1215; --direct: #d7dde2;
+  --warn-bg: #2a1d13; --warn-line: #e0782f; --ok-bg: #16231a; --ok-line: #6dbb66;
+  --chip: #1f262c; --chip-on: #e7ebee; --chip-on-ink: #0e1215;
+  --label: #8d98a3; --lake: #5f7d99; color-scheme: dark; } }
+:root[data-theme="dark"] {
+  --bg: #0e1215; --panel: #151a1f; --ink: #e7ebee; --ink-2: #aab3bc; --ink-3: #7c8691; --line: #262e35;
+  --map: #12171b; --street: #2a333b; --street-major: #3a444d;
+  --risk-1: #9c5a22; --risk-2: #e0782f; --risk-3: #ffad74;
+  --safe: #5ea4ff; --safe-halo: #0e1215; --direct: #d7dde2;
+  --warn-bg: #2a1d13; --warn-line: #e0782f; --ok-bg: #16231a; --ok-line: #6dbb66;
+  --chip: #1f262c; --chip-on: #e7ebee; --chip-on-ink: #0e1215;
+  --label: #8d98a3; --lake: #5f7d99; color-scheme: dark; }
+
+html, body { height: 100%; }
+body { background: var(--bg); color: var(--ink); font-family: var(--f-body); font-size: 14px; line-height: 1.45; }
+.app { display: grid; grid-template-columns: minmax(300px, 370px) 1fr; height: 100%; }
+.rail { background: var(--panel); border-right: 1px solid var(--line); overflow-y: auto; display: flex; flex-direction: column; gap: 18px;
+  padding-block: 20px 24px; padding-left: max(18px, env(safe-area-inset-left, 0px)); padding-right: 18px; min-width: 0; }
+.brand { display: flex; flex-direction: column; gap: 2px; }
+.brand h1 { font-family: var(--f-display); font-weight: 800; font-size: 22px; letter-spacing: -0.02em; margin: 0; text-wrap: balance; }
+.brand p { margin: 0; color: var(--ink-2); font-size: 13px; }
+.eyebrow { font-size: 11px; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: var(--ink-3); margin: 0 0 6px; }
+.group { display: flex; flex-direction: column; gap: 8px; }
+.group p { margin: 0; }
+.seg { display: flex; flex-wrap: wrap; gap: 6px; }
+.seg button { font: 500 13px/1 var(--f-body); background: var(--chip); color: var(--ink); border: 1px solid transparent; border-radius: 999px; padding: 8px 11px; cursor: pointer; }
+.seg button[aria-pressed="true"] { background: var(--chip-on); color: var(--chip-on-ink); }
+.seg button:focus-visible, .btn:focus-visible, .mapbtns button:focus-visible { outline: 2px solid var(--safe); outline-offset: 2px; }
+.row { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+.btn { font: 500 13px/1 var(--f-body); background: transparent; color: var(--ink); border: 1px solid var(--line); border-radius: 8px; padding: 8px 10px; cursor: pointer; }
+.btn:hover, .seg button:hover { border-color: var(--ink-3); }
+.hint { font-size: 13px; color: var(--ink-2); }
+.trip { display: grid; grid-template-columns: auto 1fr auto auto; gap: 6px 12px; align-items: baseline; font-variant-numeric: tabular-nums; }
+.trip .h { font-size: 11px; color: var(--ink-3); text-transform: uppercase; letter-spacing: 0.06em; }
+.trip .num { font-family: var(--f-mono); font-size: 13px; text-align: right; }
+.key { display: inline-block; width: 22px; height: 0; border-top: 4px solid var(--safe); vertical-align: middle; }
+.key.direct { border-top: 3px dashed var(--direct); }
+.verdict { border-left: 4px solid var(--ok-line); background: var(--ok-bg); padding: 10px 12px; border-radius: 0 8px 8px 0; font-size: 13.5px; }
+.verdict.warn { border-left-color: var(--warn-line); background: var(--warn-bg); }
+.verdict strong { display: block; font-size: 14px; margin-bottom: 2px; }
+.legend { display: grid; grid-template-columns: 26px 1fr; gap: 6px 10px; align-items: center; font-size: 12.5px; color: var(--ink-2); }
+.sw { height: 5px; border-radius: 3px; }
+details { border-top: 1px solid var(--line); padding-top: 12px; color: var(--ink-2); font-size: 13px; }
+details summary { cursor: pointer; color: var(--ink); font-weight: 600; }
+details p { margin: 8px 0 0; max-width: 62ch; }
+.mapwrap { position: relative; min-width: 0; min-height: 0; background: var(--map); }
+canvas { display: block; width: 100%; height: 100%; touch-action: none; cursor: crosshair; }
+.mapbtns { position: absolute; right: max(12px, env(safe-area-inset-right, 0px)); top: 12px; display: flex; flex-direction: column; gap: 6px; }
+.mapbtns button { font: 600 13px/1 var(--f-body); background: var(--panel); color: var(--ink); border: 1px solid var(--line); border-radius: 8px; min-width: 36px; height: 36px; padding: 0 10px; cursor: pointer; }
+.toast { position: absolute; left: 12px; bottom: max(12px, env(safe-area-inset-bottom, 0px)); background: var(--panel); border: 1px solid var(--line); border-radius: 8px; padding: 8px 10px; font-size: 12.5px; color: var(--ink-2); max-width: calc(100% - 24px); }
+.toast b { color: var(--ink); }
+@media (max-width: 760px) {
+  .app { grid-template-columns: 1fr; grid-template-rows: 58vh auto; height: auto; }
+  html, body { height: auto; }
+  .mapwrap { order: -1; height: 58vh; }
+  .rail { border-right: 0; border-top: 1px solid var(--line); overflow: visible; padding-right: max(16px, env(safe-area-inset-right, 0px)); padding-left: max(16px, env(safe-area-inset-left, 0px)); }
+}
+@media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
+</style>
+
+<div class="app">
+  <aside class="rail">
+    <div class="brand">
+      <h1>SafeWalk Chicago</h1>
+      <p id="weekline">Street-crime forecast for walking routes</p>
+    </div>
+
+    <div class="group">
+      <p class="eyebrow">When are you walking?</p>
+      <div class="seg" id="daytype" role="group" aria-label="Day type"></div>
+      <div class="seg" id="window" role="group" aria-label="Time of day"></div>
+      <div class="row"><button class="btn" id="now" type="button">Use current Chicago time</button></div>
+    </div>
+
+    <div class="group">
+      <p class="eyebrow">How much to avoid risky streets</p>
+      <div class="seg" id="safety" role="group" aria-label="Safety level"></div>
+    </div>
+
+    <div class="group">
+      <p class="eyebrow">Your trip</p>
+      <p class="hint" id="hint">Click the map to set a start point (A), then a destination (B).</p>
+      <div class="trip" id="trip"></div>
+      <div id="verdict"></div>
+      <div class="row"><button class="btn" id="swap" type="button">Swap A and B</button><button class="btn" id="example" type="button">Example trip</button></div>
+    </div>
+
+    <div class="group">
+      <p class="eyebrow">Street risk for this time</p>
+      <div class="legend">
+        <span class="sw" style="background: var(--risk-3)"></span><span>Very high: riskiest 1% of streets (about 7× city average)</span>
+        <span class="sw" style="background: var(--risk-2)"></span><span>High: riskiest 5% (3× or more)</span>
+        <span class="sw" style="background: var(--risk-1)"></span><span>Elevated: riskiest 20% (1.4× or more)</span>
+        <span class="sw" style="background: var(--street-major)"></span><span>Everything else</span>
+      </div>
+    </div>
+
+    <details>
+      <summary>How this works</summary>
+      <p>Risk comes from a model trained on 264,434 street crimes recorded by the Chicago Police Department in 2015–2024: robbery, battery, assault, sexual assault, homicide, kidnapping, pickpocketing and purse snatching on streets, sidewalks, alleys, parks, parking lots and transit, excluding domestic incidents.</p>
+      <p>The city is split into 250 m cells and the week into 12 time slots (weekday or weekend × six 4-hour windows). The map shows the forecast for the week after the data ends. Each street takes the risk of the cells it passes through.</p>
+      <p>The safer route minimises distance × (1 + level × risk). In a test on 250 random walks, routes chosen with a risk map built only from 2015–2023 data, at the Balanced setting, were about 4% longer and passed 44–51% fewer real 2024 crimes than the shortest routes.</p>
+      <p>Limits: this is reported crime, not all crime; the city shifts crime locations within the block for privacy; a lower-risk route is not a guarantee of safety.</p>
+    </details>
+  </aside>
+
+  <div class="mapwrap">
+    <canvas id="map" aria-label="Map of Chicago streets coloured by predicted risk, with the routes drawn on top"></canvas>
+    <div class="mapbtns">
+      <button id="zin" type="button" aria-label="Zoom in">+</button>
+      <button id="zout" type="button" aria-label="Zoom out">−</button>
+      <button id="fit" type="button">Trip</button>
+      <button id="city" type="button">City</button>
+    </div>
+    <div class="toast" id="toast">Drag to pan · scroll or pinch to zoom · click to place <b id="nextpt">A</b></div>
+  </div>
+</div>
+
+<script>
+const DATA = /*__DATA__*/null;
+
+// ---------- decode ----------
+function b64(s, T) { const bin = atob(s); const u = new Uint8Array(bin.length); for (let i = 0; i < bin.length; i++) u[i] = bin.charCodeAt(i); return new T(u.buffer); }
+const NXY = b64(DATA.nodes, Int32Array), EU = b64(DATA.eu, Uint32Array), EV = b64(DATA.ev, Uint32Array);
+const LEN = b64(DATA.len, Uint16Array), RISK = b64(DATA.risk, Uint16Array);
+const MOFF = b64(DATA.mid_off, Uint32Array), MPTS = b64(DATA.mid_pts, Int32Array), NAMEI = b64(DATA.name_idx, Uint16Array);
+const NN = DATA.n_nodes, NE = DATA.n_edges, THR = DATA.thr;
+document.getElementById("weekline").textContent = "Street-crime forecast for the week of " + DATA.week;
+
+// adjacency (CSR)
+const deg = new Uint32Array(NN + 1);
+for (let e = 0; e < NE; e++) { deg[EU[e] + 1]++; deg[EV[e] + 1]++; }
+for (let i = 0; i < NN; i++) deg[i + 1] += deg[i];
+const ADJ_E = new Uint32Array(2 * NE), fill = deg.slice(0, NN);
+for (let e = 0; e < NE; e++) { ADJ_E[fill[EU[e]]++] = e; ADJ_E[fill[EV[e]]++] = e; }
+
+// spatial hash for snapping clicks to the nearest junction
+const HC = 250, hash = new Map();
+for (let i = 0; i < NN; i++) { const k = Math.floor(NXY[2*i] / HC) + "," + Math.floor(NXY[2*i+1] / HC); (hash.get(k) || hash.set(k, []).get(k)).push(i); }
+function nearest(x, y) {
+  const cx = Math.floor(x / HC), cy = Math.floor(y / HC);
+  for (let r = 1; r < 8; r++) {
+    let best = -1, bd = Infinity;
+    for (let i = cx - r; i <= cx + r; i++) for (let j = cy - r; j <= cy + r; j++) {
+      const L = hash.get(i + "," + j); if (!L) continue;
+      for (const n of L) { const d = (NXY[2*n] - x) ** 2 + (NXY[2*n+1] - y) ** 2; if (d < bd) { bd = d; best = n; } }
+    }
+    if (best >= 0) return best;
+  }
+  return -1;
+}
+
+// ---------- state ----------
+const WINDOWS = ["12–4 am", "4–8 am", "8 am–12 pm", "12–4 pm", "4–8 pm", "8 pm–12 am"];
+const LEVELS = [["Shortest", 0], ["Light", 0.25], ["Balanced", 0.5], ["Strong", 1], ["Maximum", 2]];
+const S = { weekend: 0, win: 5, level: 2, A: DATA.start, B: DATA.end, next: "A", routes: null };
+const slot = () => S.weekend * 6 + S.win;
+
+function seg(el, items, get, set) {
+  el.innerHTML = "";
+  items.forEach((label, i) => {
+    const b = document.createElement("button"); b.type = "button"; b.textContent = label;
+    b.setAttribute("aria-pressed", String(get() === i));
+    b.onclick = () => { set(i); [...el.children].forEach((c, j) => c.setAttribute("aria-pressed", String(get() === j))); update(); };
+    el.appendChild(b);
+  });
+}
+const segDay = () => seg(document.getElementById("daytype"), ["Weekday", "Weekend"], () => S.weekend, v => S.weekend = v);
+const segWin = () => seg(document.getElementById("window"), WINDOWS, () => S.win, v => S.win = v);
+const segLvl = () => seg(document.getElementById("safety"), LEVELS.map(l => l[0]), () => S.level, v => S.level = v);
+segDay(); segWin(); segLvl();
+
+document.getElementById("now").onclick = () => {
+  const parts = new Intl.DateTimeFormat("en-US", { timeZone: "America/Chicago", weekday: "short", hour: "numeric", hourCycle: "h23" }).formatToParts(new Date());
+  const wd = parts.find(p => p.type === "weekday").value, hr = +parts.find(p => p.type === "hour").value % 24;
+  S.weekend = (wd === "Sat" || wd === "Sun") ? 1 : 0; S.win = Math.floor(hr / 4);
+  segDay(); segWin(); update();
+  toast(`Chicago time now: <b>${wd} ${String(hr).padStart(2, "0")}:00</b>`);
+};
+document.getElementById("swap").onclick = () => { if (S.A >= 0 && S.B >= 0) { [S.A, S.B] = [S.B, S.A]; update(); } };
+document.getElementById("example").onclick = () => { S.next = "A"; S.A = DATA.start; S.B = DATA.end; S.weekend = 0; S.win = 5; S.level = 2; segDay(); segWin(); segLvl(); update(); fitTrip(); };
+
+// ---------- routing ----------
+function dijkstra(src, dst, lam, s) {
+  const dist = new Float64Array(NN).fill(Infinity), prevE = new Int32Array(NN).fill(-1), done = new Uint8Array(NN);
+  const hn = [], hd = [];
+  const push = (n, d) => { hn.push(n); hd.push(d); let i = hn.length - 1;
+    while (i > 0) { const p = (i - 1) >> 1; if (hd[p] <= hd[i]) break; [hn[p], hn[i]] = [hn[i], hn[p]]; [hd[p], hd[i]] = [hd[i], hd[p]]; i = p; } };
+  const pop = () => { const n = hn[0], d = hd[0], ln = hn.pop(), ld = hd.pop();
+    if (hn.length) { hn[0] = ln; hd[0] = ld; let i = 0;
+      for (;;) { const l = 2*i+1, r = l+1; let m = i; if (l < hn.length && hd[l] < hd[m]) m = l; if (r < hn.length && hd[r] < hd[m]) m = r;
+        if (m === i) break; [hn[m], hn[i]] = [hn[i], hn[m]]; [hd[m], hd[i]] = [hd[i], hd[m]]; i = m; } }
+    return [n, d]; };
+  dist[src] = 0; push(src, 0);
+  while (hn.length) {
+    const [u, d] = pop(); if (done[u]) continue; done[u] = 1; if (u === dst) break;
+    for (let k = deg[u]; k < deg[u + 1]; k++) {
+      const e = ADJ_E[k], v = EU[e] === u ? EV[e] : EU[e];
+      const w = LEN[e] * (1 + lam * RISK[e * 12 + s] / 10), nd = d + w;
+      if (nd < dist[v]) { dist[v] = nd; prevE[v] = e; push(v, nd); }
+    }
+  }
+  const edges = []; let v = dst;
+  while (v !== src && prevE[v] >= 0) { const e = prevE[v]; edges.push(e); v = EU[e] === v ? EV[e] : EU[e]; }
+  return edges.reverse();
+}
+function stats(edges, s) {
+  let L = 0, expo = 0, hi = 0; const hiNames = new Map();
+  for (const e of edges) {
+    const r = RISK[e * 12 + s]; L += LEN[e]; expo += LEN[e] * r / 10;
+    if (r >= THR.high[s]) { hi++; const nm = DATA.names[NAMEI[e]]; if (nm) hiNames.set(nm, (hiNames.get(nm) || 0) + LEN[e]); }
+  }
+  return { L, expo, avg: L ? expo / L : 0, hi, hiNames: [...hiNames.entries()].sort((a, b) => b[1] - a[1]).map(x => titleCase(x[0])) };
+}
+function titleCase(s) { return s.toLowerCase().replace(/\b([a-z])/g, c => c.toUpperCase()).replace(/\b(N|S|E|W)\b/gi, m => m.toUpperCase()); }
+
+function update() {
+  const s = slot();
+  if (S.A >= 0 && S.B >= 0 && S.A !== S.B) {
+    const direct = dijkstra(S.A, S.B, 0, s);
+    const safer = LEVELS[S.level][1] > 0 ? dijkstra(S.A, S.B, LEVELS[S.level][1], s) : direct;
+    S.routes = { direct, safer, sd: stats(direct, s), ss: stats(safer, s) };
+  } else S.routes = null;
+  renderPanel(); draw();
+}
+
+// ---------- panel ----------
+const km = m => (m / 1000).toFixed(2) + " km", mins = m => Math.round(m / 1000 * 12) + " min";
+function renderPanel() {
+  const trip = document.getElementById("trip"), ver = document.getElementById("verdict"), hint = document.getElementById("hint");
+  const np = document.getElementById("nextpt"); if (np) np.textContent = S.next;
+  if (!S.routes) {
+    trip.innerHTML = ""; ver.innerHTML = "";
+    hint.textContent = S.A >= 0 ? "Now click the map to set your destination (B)." : "Click the map to set a start point (A), then a destination (B).";
+    return;
+  }
+  hint.textContent = "Click the map to start a new trip.";
+  const { sd, ss } = S.routes, same = LEVELS[S.level][1] === 0 || S.routes.safer.join() === S.routes.direct.join();
+  const row = (cls, name, st) => `<span class="key ${cls}"></span><span>${name}</span><span class="num">${km(st.L)}</span><span class="num">${st.avg.toFixed(1)}×</span>`;
+  trip.innerHTML = `<span></span><span class="h">Route</span><span class="h num">Distance</span><span class="h num">Risk</span>` +
+    row("direct", "Shortest", sd) + (same ? "" : row("", "Safer", ss)) +
+    `<span></span><span class="hint" style="grid-column: 2 / -1; font-size: 12px">Risk = average along the route, relative to the city average for this time.</span>`;
+  const names = sd.hiNames.slice(0, 3).join(", ");
+  if (LEVELS[S.level][1] === 0) {
+    ver.innerHTML = sd.hi ? `<div class="verdict warn"><strong>Shortest route crosses ${sd.hi} high-risk block${sd.hi > 1 ? "s" : ""}</strong>${names ? "On " + names + ". " : ""}Pick a safety level to see a detour.</div>`
+                          : `<div class="verdict"><strong>No high-risk blocks on this route</strong>for ${S.weekend ? "weekend" : "weekday"} ${WINDOWS[S.win]}.</div>`;
+  } else if (same) {
+    ver.innerHTML = `<div class="verdict${sd.hi ? " warn" : ""}"><strong>${sd.hi ? "No better detour nearby" : "The shortest route is already the low-risk one"}</strong>${sd.hi ? sd.hi + " high-risk block" + (sd.hi > 1 ? "s" : "") + " on the way" + (names ? " (" + names + ")" : "") + ". Try a stronger setting." : "No detour needed at this time."}</div>`;
+  } else {
+    const extra = (ss.L / sd.L - 1) * 100, cut = (1 - ss.expo / sd.expo) * 100, extraMin = Math.max(0, Math.round((ss.L - sd.L) / 1000 * 12));
+    ver.innerHTML = `<div class="verdict${sd.hi ? " warn" : ""}"><strong>Detour: ${cut.toFixed(0)}% less predicted risk for ${extra.toFixed(0)}% more walking</strong>` +
+      `About ${extraMin} extra minute${extraMin === 1 ? "" : "s"}. ` +
+      (sd.hi ? `The shortest route crosses ${sd.hi} high-risk block${sd.hi > 1 ? "s" : ""}${names ? " on " + names : ""}; the safer one crosses ${ss.hi}.` : `Neither route crosses a high-risk block.`) + `</div>`;
+  }
+}
+let toastTimer;
+function toast(html) { const t = document.getElementById("toast"); t.innerHTML = html; clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => { t.innerHTML = `Drag to pan · scroll or pinch to zoom · click to place <b id="nextpt">${S.next}</b>`; }, 3500); }
+
+// ---------- map drawing ----------
+const cv = document.getElementById("map"), ctx = cv.getContext("2d");
+const V = { s: 0.02, ox: 0, oy: 0 };   // screen = (x * s + ox, -y * s + oy)
+let W = 0, H = 0, dpr = 1;
+const LANDMARKS = [["The Loop", 41.8818, -87.6298], ["O'Hare", 41.9786, -87.9048], ["Midway", 41.7868, -87.7522],
+                   ["Hyde Park", 41.7943, -87.5907], ["Wrigleyville", 41.9484, -87.6553], ["Lake Michigan", 41.90, -87.565]];
+const toXY = (lat, lon) => [(lon - DATA.lon0) * DATA.mlon, (lat - DATA.lat0) * DATA.mlat];
+const sx = x => x * V.s + V.ox, sy = y => -y * V.s + V.oy;
+const wx = px => (px - V.ox) / V.s, wy = py => -(py - V.oy) / V.s;
+
+function resize() { const r = cv.getBoundingClientRect(); dpr = window.devicePixelRatio || 1;
+  if (W && H) { const cx = wx(W / 2), cy = wy(H / 2); V.ox = r.width / 2 - cx * V.s; V.oy = r.height / 2 + cy * V.s; }
+  W = r.width; H = r.height;
+  cv.width = Math.round(W * dpr); cv.height = Math.round(H * dpr); draw(); }
+function fitBox(x0, y0, x1, y1, pad = 40) {
+  const s = Math.min((W - 2 * pad) / Math.max(x1 - x0, 1), (H - 2 * pad) / Math.max(y1 - y0, 1));
+  V.s = s; V.ox = W / 2 - (x0 + x1) / 2 * s; V.oy = H / 2 + (y0 + y1) / 2 * s; draw();
+}
+function fitCity() { fitBox(7800, 500, 35300, 42500, 16); }
+function fitTrip() {
+  if (!S.routes) return fitCity();
+  let x0 = Infinity, y0 = Infinity, x1 = -Infinity, y1 = -Infinity;
+  for (const e of [...S.routes.direct, ...S.routes.safer]) for (const n of [EU[e], EV[e]]) {
+    x0 = Math.min(x0, NXY[2*n]); x1 = Math.max(x1, NXY[2*n]); y0 = Math.min(y0, NXY[2*n+1]); y1 = Math.max(y1, NXY[2*n+1]); }
+  fitBox(x0, y0, x1, y1, 60);
+}
+function tracePath(e, flip) {
+  const a = flip ? EV[e] : EU[e], b = flip ? EU[e] : EV[e];
+  ctx.lineTo(sx(NXY[2*a]), sy(NXY[2*a+1]));
+  const m0 = MOFF[e], m1 = MOFF[e + 1];
+  if (!flip) for (let k = m0; k < m1; k++) ctx.lineTo(sx(MPTS[2*k]), sy(MPTS[2*k+1]));
+  else for (let k = m1 - 1; k >= m0; k--) ctx.lineTo(sx(MPTS[2*k]), sy(MPTS[2*k+1]));
+  ctx.lineTo(sx(NXY[2*b]), sy(NXY[2*b+1]));
+}
+function edgePath(e) { ctx.moveTo(sx(NXY[2*EU[e]]), sy(NXY[2*EU[e]+1])); tracePath(e, false); }
+function routePath(edges, start) {
+  let cur = start; ctx.moveTo(sx(NXY[2*cur]), sy(NXY[2*cur+1]));
+  for (const e of edges) { const flip = EU[e] !== cur; tracePath(e, flip); cur = flip ? EU[e] : EV[e]; }
+}
+let raf = 0;
+function draw() { if (!raf) raf = requestAnimationFrame(() => { raf = 0; paint(); }); }
+function paint() {
+  const css = getComputedStyle(document.documentElement), c = n => css.getPropertyValue(n).trim();
+  ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+  ctx.fillStyle = c("--map"); ctx.fillRect(0, 0, W, H);
+  const s = slot(), x0 = wx(-50), x1 = wx(W + 50), y1 = wy(-50), y0 = wy(H + 50);
+  const buckets = [[], [], [], []];
+  for (let e = 0; e < NE; e++) {
+    const ax = NXY[2*EU[e]], ay = NXY[2*EU[e]+1], bx = NXY[2*EV[e]], by = NXY[2*EV[e]+1];
+    if (Math.max(ax, bx) < x0 || Math.min(ax, bx) > x1 || Math.max(ay, by) < y0 || Math.min(ay, by) > y1) continue;
+    const r = RISK[e * 12 + s];
+    buckets[r >= THR.very_high[s] ? 3 : r >= THR.high[s] ? 2 : r >= THR.elevated[s] ? 1 : 0].push(e);
+  }
+  const z = Math.max(0.6, Math.min(1, V.s * 40));
+  const styles = [[c("--street-major"), 0.7 * z], [c("--risk-1"), 1.6 * z], [c("--risk-2"), 2.2 * z], [c("--risk-3"), 2.8 * z]];
+  ctx.lineCap = "round"; ctx.lineJoin = "round";
+  buckets.forEach((list, i) => { ctx.beginPath(); for (const e of list) edgePath(e); ctx.strokeStyle = styles[i][0]; ctx.lineWidth = styles[i][1]; ctx.stroke(); });
+
+  // landmark labels
+  ctx.font = `600 12px ${c("--f-body")}`; ctx.textAlign = "center";
+  for (const [name, lat, lon] of LANDMARKS) {
+    const [x, y] = toXY(lat, lon); const px = sx(x), py = sy(y);
+    if (px < 0 || px > W || py < 0 || py > H) continue;
+    ctx.fillStyle = name === "Lake Michigan" ? c("--lake") : c("--label");
+    ctx.font = name === "Lake Michigan" ? `italic 500 13px ${c("--f-body")}` : `600 12px ${c("--f-body")}`;
+    ctx.lineWidth = 3; ctx.strokeStyle = c("--map"); ctx.strokeText(name, px, py);
+    ctx.fillText(name, px, py);
+  }
+
+  if (S.routes) {
+    const { direct, safer } = S.routes;
+    if (safer !== direct) {
+      ctx.beginPath(); routePath(safer, S.A); ctx.strokeStyle = c("--safe-halo"); ctx.lineWidth = 9; ctx.stroke();
+      ctx.beginPath(); routePath(safer, S.A); ctx.strokeStyle = c("--safe"); ctx.lineWidth = 5; ctx.stroke();
+    }
+    ctx.beginPath(); routePath(direct, S.A); ctx.setLineDash([7, 6]); ctx.strokeStyle = c("--direct"); ctx.lineWidth = 2.5; ctx.stroke(); ctx.setLineDash([]);
+  }
+  for (const [lab, n] of [["A", S.A], ["B", S.B]]) {
+    if (n < 0) continue;
+    const px = sx(NXY[2*n]), py = sy(NXY[2*n+1]);
+    ctx.beginPath(); ctx.arc(px, py, 11, 0, 7); ctx.fillStyle = c("--ink"); ctx.fill();
+    ctx.lineWidth = 2; ctx.strokeStyle = c("--panel"); ctx.stroke();
+    ctx.fillStyle = c("--panel"); ctx.font = `700 12px ${c("--f-body")}`; ctx.textAlign = "center"; ctx.textBaseline = "middle"; ctx.fillText(lab, px, py + 0.5);
+    ctx.textBaseline = "alphabetic";
+  }
+  // scale bar
+  const target = 120 / V.s, nice = [100, 200, 500, 1000, 2000, 5000, 10000].find(v => v >= target * 0.6) || 10000, len = nice * V.s;
+  ctx.fillStyle = c("--ink-2"); ctx.fillRect(W - 16 - len, H - 22, len, 2);
+  ctx.font = `500 11px ${c("--f-mono")}`; ctx.textAlign = "right";
+  ctx.fillText(nice >= 1000 ? nice / 1000 + " km" : nice + " m", W - 16, H - 28);
+}
+
+// ---------- interaction ----------
+const ptrs = new Map(); let dragMoved = false, pinch0 = null;
+cv.addEventListener("pointerdown", ev => { cv.setPointerCapture(ev.pointerId); ptrs.set(ev.pointerId, [ev.offsetX, ev.offsetY]); dragMoved = false;
+  if (ptrs.size === 2) { const [a, b] = [...ptrs.values()]; pinch0 = { d: Math.hypot(a[0] - b[0], a[1] - b[1]), s: V.s }; } });
+cv.addEventListener("pointermove", ev => {
+  if (!ptrs.has(ev.pointerId)) return;
+  const [px, py] = ptrs.get(ev.pointerId), dx = ev.offsetX - px, dy = ev.offsetY - py;
+  ptrs.set(ev.pointerId, [ev.offsetX, ev.offsetY]);
+  if (ptrs.size === 2 && pinch0) {
+    const [a, b] = [...ptrs.values()], d = Math.hypot(a[0] - b[0], a[1] - b[1]);
+    zoomAt((a[0] + b[0]) / 2, (a[1] + b[1]) / 2, pinch0.s * d / pinch0.d / V.s); dragMoved = true; return;
+  }
+  if (Math.abs(dx) + Math.abs(dy) > 0) { if (dragMoved || Math.hypot(dx, dy) > 3) dragMoved = true; V.ox += dx; V.oy += dy; draw(); }
+});
+cv.addEventListener("pointerup", ev => {
+  const wasPinch = ptrs.size > 1; ptrs.delete(ev.pointerId); if (ptrs.size < 2) pinch0 = null;
+  if (dragMoved || wasPinch) return;
+  const n = nearest(wx(ev.offsetX), wy(ev.offsetY)); if (n < 0) return;
+  if (S.next === "A") { S.A = n; S.B = -1; S.next = "B"; } else { S.B = n; S.next = "A"; }
+  update();
+});
+cv.addEventListener("pointercancel", ev => { ptrs.delete(ev.pointerId); pinch0 = null; });
+function zoomAt(px, py, f) { const ns = Math.min(0.6, Math.max(0.006, V.s * f)); f = ns / V.s;
+  V.ox = px - (px - V.ox) * f; V.oy = py - (py - V.oy) * f; V.s = ns; draw(); }
+cv.addEventListener("wheel", ev => { ev.preventDefault(); zoomAt(ev.offsetX, ev.offsetY, Math.exp(-ev.deltaY * 0.0015)); }, { passive: false });
+document.getElementById("zin").onclick = () => zoomAt(W / 2, H / 2, 1.5);
+document.getElementById("zout").onclick = () => zoomAt(W / 2, H / 2, 1 / 1.5);
+document.getElementById("fit").onclick = fitTrip;
+document.getElementById("city").onclick = fitCity;
+window.addEventListener("resize", resize);
+matchMedia("(prefers-color-scheme: dark)").addEventListener("change", draw);
+new MutationObserver(draw).observe(document.documentElement, { attributes: true, attributeFilter: ["data-theme"] });
+if (document.fonts) document.fonts.ready.then(draw);
+
+resize(); update(); fitTrip();
+</script>
