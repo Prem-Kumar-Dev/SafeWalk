@@ -58,6 +58,7 @@ fun SafeWalkRoot(vm: SafeWalkViewModel, requestLocation: () -> Unit, exit: () ->
             bottomPaddingPx = sheetHeight,
             onLongPress = { if (s.screen == Screen.MAP) vm.longPress(it) },
             onTap = { if (s.screen == Screen.MAP) vm.clearPin() },
+            onBasemapOffline = vm::onBasemapOffline,
             modifier = Modifier.fillMaxSize(),
         )
         Attribution(Modifier.align(Alignment.BottomStart))

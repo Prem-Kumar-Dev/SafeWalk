@@ -9,6 +9,7 @@ import app.safewalk.android.SafeWalkApp
 import app.safewalk.android.data.DataState
 import app.safewalk.android.data.Place
 import app.safewalk.android.data.Units
+import app.safewalk.android.data.UpdateResult
 import app.safewalk.core.LatLon
 import app.safewalk.core.RouteDetails
 import app.safewalk.core.RouteProgress
@@ -70,6 +71,10 @@ data class UiState(
     val walk: WalkState? = null,
     val units: Units = Units.KM,
     val checkingUpdate: Boolean = false,
+    /** outcome of the last "Check for update" tap, shown under the button; null until one is tapped */
+    val updateResult: UpdateResult? = null,
+    /** the map style could not be downloaded (offline); routes are drawn on a plain background */
+    val basemapOffline: Boolean = false,
     /** bumped to ask the map to move; the map reads [cameraTarget] when it changes */
     val cameraRequest: Int = 0,
     val cameraTarget: CameraTarget? = null,
@@ -173,7 +178,7 @@ class SafeWalkViewModel(app: Application) : AndroidViewModel(app) {
             Screen.SEARCH -> if (s.start != null && s.end != null) Screen.PREVIEW else Screen.MAP
             Screen.PREVIEW -> { _ui.update { it.copy(trip = null, start = null, end = null) }; Screen.MAP }
             Screen.WALKING -> { endWalk(); return true }
-            Screen.SETTINGS -> Screen.MAP
+            Screen.SETTINGS -> { _ui.update { it.copy(updateResult = null) }; Screen.MAP }
             Screen.ABOUT, Screen.PRIVACY -> Screen.SETTINGS
         }
         _ui.update { it.copy(screen = to) }
@@ -355,12 +360,14 @@ class SafeWalkViewModel(app: Application) : AndroidViewModel(app) {
     fun setUnits(u: Units) { prefs.units = u; _ui.update { it.copy(units = u) } }
 
     fun checkForUpdateNow() {
-        _ui.update { it.copy(checkingUpdate = true) }
+        _ui.update { it.copy(checkingUpdate = true, updateResult = null) }
         viewModelScope.launch {
-            runCatching { repo.checkForUpdate(force = true) }
-            _ui.update { it.copy(checkingUpdate = false) }
+            val r = runCatching { repo.checkForUpdate(force = true) }.getOrDefault(UpdateResult.FAILED)
+            _ui.update { it.copy(checkingUpdate = false, updateResult = r) }
         }
     }
+
+    fun onBasemapOffline(offline: Boolean) = _ui.update { it.copy(basemapOffline = offline) }
 
     companion object {
         val LOOP = LatLon(41.8819, -87.6278)

@@ -24,6 +24,9 @@ import java.io.File
 import java.io.IOException
 import java.util.concurrent.TimeUnit
 
+/** What a forecast check found; Settings shows it after "Check for update". */
+enum class UpdateResult { UPDATED, UP_TO_DATE, FAILED, APP_TOO_OLD }
+
 sealed interface DataState {
     data object Loading : DataState
     data class Ready(val data: SafeWalkData, val styleUrl: String?, val updatedAtMs: Long) : DataState
@@ -41,6 +44,8 @@ class DataRepository(private val context: Context, private val prefs: Prefs) {
     private val http = OkHttpClient.Builder()
         .connectTimeout(15, TimeUnit.SECONDS)
         .readTimeout(30, TimeUnit.SECONDS)
+        // a slow connection gives up on the whole call and keeps the saved forecast
+        .callTimeout(90, TimeUnit.SECONDS)
         .build()
     private val lock = Mutex()
 
@@ -62,24 +67,24 @@ class DataRepository(private val context: Context, private val prefs: Prefs) {
         }
     }
 
-    /** Checks for a newer forecast. Set [force] from Settings → "Check for update". Returns true if data changed. */
-    suspend fun checkForUpdate(force: Boolean = false): Boolean = withContext(Dispatchers.IO) {
-        if (!force && System.currentTimeMillis() - prefs.lastCheckMs < CHECK_EVERY_MS) return@withContext false
+    /** Checks for a newer forecast. Set [force] from Settings → "Check for update". */
+    suspend fun checkForUpdate(force: Boolean = false): UpdateResult = withContext(Dispatchers.IO) {
+        if (!force && System.currentTimeMillis() - prefs.lastCheckMs < CHECK_EVERY_MS) return@withContext UpdateResult.UP_TO_DATE
         lock.withLock {
             for (base in listOf(BuildConfig.DATA_BASE, BuildConfig.DATA_MIRROR)) {
                 try {
                     val changed = updateFrom(base)
                     prefs.lastCheckMs = System.currentTimeMillis()
-                    return@withLock changed
+                    return@withLock if (changed) UpdateResult.UPDATED else UpdateResult.UP_TO_DATE
                 } catch (e: AppTooOldException) {
                     _appTooOld.value = true
                     prefs.lastCheckMs = System.currentTimeMillis()
-                    return@withLock false
+                    return@withLock UpdateResult.APP_TOO_OLD
                 } catch (e: Exception) {
                     Log.w(TAG, "update from $base failed", e)
                 }
             }
-            false
+            UpdateResult.FAILED
         }
     }
 

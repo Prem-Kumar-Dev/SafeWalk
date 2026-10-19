@@ -251,7 +251,7 @@ private fun LocationPage(onDone: (askLocation: Boolean) -> Unit) {
             Icon(Icons.Outlined.Lock, contentDescription = null, tint = MaterialTheme.colorScheme.outline, modifier = Modifier.size(14.dp))
             Spacer(Modifier.width(6.dp))
             Text(stringResource(R.string.location_private), style = MaterialTheme.typography.bodySmall,
-                color = MaterialTheme.colorScheme.outline)
+                color = MaterialTheme.colorScheme.onSurfaceVariant)
         }
         Spacer(Modifier.height(12.dp))
         PrimaryButton(stringResource(R.string.allow_location), { onDone(true) }, Modifier.fillMaxWidth())

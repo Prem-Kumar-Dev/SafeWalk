@@ -27,7 +27,10 @@ class LocationSource(private val context: Context) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S && LocationManager.FUSED_PROVIDER in all) {
             return listOf(LocationManager.FUSED_PROVIDER)
         }
-        return listOf(LocationManager.GPS_PROVIDER, LocationManager.NETWORK_PROVIDER).filter { it in all }
+        // Before Android 12, asking the GPS provider with only "approximate" location granted throws SecurityException.
+        val fine = ContextCompat.checkSelfPermission(context, Manifest.permission.ACCESS_FINE_LOCATION) ==
+            PackageManager.PERMISSION_GRANTED
+        return listOfNotNull(LocationManager.GPS_PROVIDER.takeIf { fine }, LocationManager.NETWORK_PROVIDER).filter { it in all }
     }
 
     @SuppressLint("MissingPermission")
@@ -51,7 +54,10 @@ class LocationSource(private val context: Context) {
             }
         }
         lastKnown()?.let { trySend(it) }
-        for (p in providers()) lm.requestLocationUpdates(p, intervalMs, 0f, listener, Looper.getMainLooper())
+        for (p in providers()) {
+            // permission can be revoked from Settings while the app is open
+            runCatching { lm.requestLocationUpdates(p, intervalMs, 0f, listener, Looper.getMainLooper()) }
+        }
         awaitClose { lm.removeUpdates(listener) }
     }
 }

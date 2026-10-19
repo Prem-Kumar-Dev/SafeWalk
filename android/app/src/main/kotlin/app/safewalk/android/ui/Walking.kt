@@ -23,6 +23,7 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -52,6 +53,16 @@ fun WalkingOverlay(s: UiState, vm: SafeWalkViewModel) {
         view.keepScreenOn = true
         onDispose { view.keepScreenOn = false }
     }
+
+    // TalkBack hears each new turn, the off-route warning and arrival without touching the screen.
+    // Only the instruction is spoken, not the distance, which changes with every fix.
+    val spoken = when {
+        walk.arrived -> stringResource(R.string.arrived)
+        walk.offRoutePrompt -> stringResource(R.string.off_route_title)
+        else -> walk.fix?.nextStep?.let { instruction(it) }
+            ?: walk.route.steps.firstOrNull()?.takeIf { walk.fix == null }?.let { instruction(it) }
+    }
+    LaunchedEffect(spoken) { spoken?.let { view.announceForAccessibility(it) } }
 
     Box(Modifier.fillMaxSize()) {
         val fix = walk.fix
@@ -115,7 +126,7 @@ fun WalkingOverlay(s: UiState, vm: SafeWalkViewModel) {
                         style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant,
                     )
                     Text(stringResource(R.string.route_fine_print), style = MaterialTheme.typography.bodySmall,
-                        color = MaterialTheme.colorScheme.outline)
+                        color = MaterialTheme.colorScheme.onSurfaceVariant)
                     Spacer(Modifier.height(16.dp))
                     Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
                         Call911Button(Modifier.weight(1.6f))
@@ -157,7 +168,7 @@ private fun Arrived(s: UiState, walk: WalkState, vm: SafeWalkViewModel) {
 private fun Stat(value: String, label: String, modifier: Modifier) {
     Surface(color = SafeWalkTheme.colors.blushSoft, shape = RoundedCornerShape(18.dp), modifier = modifier) {
         Column(Modifier.padding(14.dp)) {
-            Text(value, style = MaterialTheme.typography.titleMedium, maxLines = 1)
+            Text(value, style = MaterialTheme.typography.titleMedium)
             Text(label, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
         }
     }

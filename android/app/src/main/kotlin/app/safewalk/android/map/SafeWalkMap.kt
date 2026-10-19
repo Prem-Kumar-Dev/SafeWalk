@@ -2,12 +2,16 @@ package app.safewalk.android.map
 
 import android.annotation.SuppressLint
 import android.graphics.Color
+import android.net.ConnectivityManager
+import android.net.Network
+import android.util.Log
 import android.view.Gravity
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberUpdatedState
@@ -72,6 +76,8 @@ fun SafeWalkMap(
     bottomPaddingPx: Int,
     onLongPress: (LatLon) -> Unit,
     onTap: () -> Unit,
+    /** true while the online style can't load and routes sit on a plain offline background */
+    onBasemapOffline: (Boolean) -> Unit = {},
     modifier: Modifier = Modifier,
 ) {
     val context = LocalContext.current
@@ -83,6 +89,12 @@ fun SafeWalkMap(
     var style by remember { mutableStateOf<Style?>(null) }
     val longPress by rememberUpdatedState(onLongPress)
     val tap by rememberUpdatedState(onTap)
+    val reportOffline by rememberUpdatedState(onBasemapOffline)
+    val darkNow by rememberUpdatedState(dark)
+    // Offline with no cached style: draw routes on a plain background, and try the real style again when a network appears.
+    var offline by remember { mutableStateOf(false) }
+    var fellBack by remember { mutableStateOf(false) }
+    var retry by remember { mutableIntStateOf(0) }
 
     DisposableEffect(lifecycle) {
         val obs = LifecycleEventObserver { _, e ->
@@ -98,9 +110,34 @@ fun SafeWalkMap(
         onDispose { lifecycle.removeObserver(obs); mapView.onDestroy() }
     }
 
+    DisposableEffect(mapView) {
+        val failed = MapView.OnDidFailLoadingMapListener { why ->
+            Log.w("SafeWalkMap", "map style failed to load: $why")
+            val m = map
+            if (style == null && !fellBack && m != null) {
+                fellBack = true
+                offline = true
+                m.setStyle(Style.Builder().fromJson(offlineStyle(darkNow))) { s -> addRouteLayers(s, darkNow); style = s }
+            }
+        }
+        mapView.addOnDidFailLoadingMapListener(failed)
+        onDispose { mapView.removeOnDidFailLoadingMapListener(failed) }
+    }
+
+    DisposableEffect(context) {
+        val cm = context.getSystemService(ConnectivityManager::class.java)
+        val cb = object : ConnectivityManager.NetworkCallback() {
+            override fun onAvailable(network: Network) { mapView.post { if (offline) retry++ } }
+        }
+        val registered = runCatching { cm?.registerDefaultNetworkCallback(cb) }.isSuccess && cm != null
+        onDispose { if (registered) runCatching { cm?.unregisterNetworkCallback(cb) } }
+    }
+
+    LaunchedEffect(offline) { reportOffline(offline) }
+
     // style.json from the data folder overrides the light style; OpenFreeMap's dark style at night
     val url = if (dark) BuildConfig.DARK_STYLE else (styleUrl ?: BuildConfig.DEFAULT_STYLE)
-    LaunchedEffect(url) {
+    LaunchedEffect(url, retry) {
         mapView.getMapAsync { m ->
             val firstTime = map == null
             map = m
@@ -117,7 +154,8 @@ fun SafeWalkMap(
                 m.addOnMapClickListener { tap(); false }
             }
             style = null
-            m.setStyle(Style.Builder().fromUri(url)) { s -> addRouteLayers(s, dark); style = s }
+            fellBack = false
+            m.setStyle(Style.Builder().fromUri(url)) { s -> addRouteLayers(s, dark); style = s; offline = false }
         }
     }
 
@@ -170,6 +208,11 @@ fun SafeWalkMap(
 
     AndroidView(factory = { mapView }, modifier = modifier)
 }
+
+/** A style with no network sources: just the app's paper colour under the route layers. */
+private fun offlineStyle(dark: Boolean) =
+    """{"version":8,"name":"SafeWalk offline","sources":{},""" +
+        """"layers":[{"id":"paper","type":"background","paint":{"background-color":"${if (dark) "#211A1B" else "#F2EBEA"}"}}]}"""
 
 private fun addRouteLayers(s: Style, dark: Boolean) {
     s.addSource(GeoJsonSource(SRC_OTHER))

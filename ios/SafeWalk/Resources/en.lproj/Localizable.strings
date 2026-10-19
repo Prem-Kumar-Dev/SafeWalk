@@ -105,6 +105,11 @@
 "section_about" = "About";
 "data_check" = "Check for update";
 "data_checking" = "Checking…";
+"update_done" = "Downloaded the new forecast.";
+"update_latest" = "You have the latest forecast.";
+"update_failed" = "Couldn't reach the forecast server. Your saved forecast still works.";
+"data_failed" = "Couldn't load the street data: %@";
+"map_offline" = "You're offline, so the street map can't load. Routes still work.";
 "about" = "About and how it works";
 "privacy" = "Privacy";
 "disclaimer" = "Disclaimer";

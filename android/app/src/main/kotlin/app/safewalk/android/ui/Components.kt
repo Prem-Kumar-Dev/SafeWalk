@@ -1,7 +1,9 @@
 package app.safewalk.android.ui
 
+import android.content.ActivityNotFoundException
 import android.content.Intent
 import android.net.Uri
+import android.widget.Toast
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -13,6 +15,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -37,6 +40,8 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.clearAndSetSemantics
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -48,7 +53,7 @@ import app.safewalk.android.R
 fun PrimaryButton(text: String, onClick: () -> Unit, modifier: Modifier = Modifier, enabled: Boolean = true,
                   leading: (@Composable () -> Unit)? = null) {
     Button(
-        onClick = onClick, enabled = enabled, modifier = modifier.height(56.dp),
+        onClick = onClick, enabled = enabled, modifier = modifier.heightIn(min = 56.dp),
         colors = ButtonDefaults.buttonColors(
             containerColor = MaterialTheme.colorScheme.primary, contentColor = MaterialTheme.colorScheme.onPrimary,
         ),
@@ -62,7 +67,7 @@ fun PrimaryButton(text: String, onClick: () -> Unit, modifier: Modifier = Modifi
 @Composable
 fun QuietButton(text: String, onClick: () -> Unit, modifier: Modifier = Modifier, enabled: Boolean = true) {
     Button(
-        onClick = onClick, enabled = enabled, modifier = modifier.height(56.dp),
+        onClick = onClick, enabled = enabled, modifier = modifier.heightIn(min = 56.dp),
         colors = ButtonDefaults.buttonColors(
             containerColor = SafeWalkTheme.colors.sand, contentColor = MaterialTheme.colorScheme.onSurface,
         ),
@@ -76,10 +81,14 @@ fun Call911Button(modifier: Modifier = Modifier) {
     val context = LocalContext.current
     val red = SafeWalkTheme.colors.emergency
     OutlinedButton(
-        onClick = { context.startActivity(Intent(Intent.ACTION_DIAL, Uri.parse("tel:911"))) },
+        onClick = {
+            // tablets and some work profiles have no dialer
+            try { context.startActivity(Intent(Intent.ACTION_DIAL, Uri.parse("tel:911"))) }
+            catch (e: ActivityNotFoundException) { Toast.makeText(context, R.string.no_dialer, Toast.LENGTH_LONG).show() }
+        },
         border = BorderStroke(1.5.dp, red),
         colors = ButtonDefaults.outlinedButtonColors(contentColor = red),
-        modifier = modifier.height(56.dp),
+        modifier = modifier.heightIn(min = 56.dp),
     ) {
         Icon(Icons.Default.Phone, contentDescription = null, modifier = Modifier.size(20.dp))
         Spacer(Modifier.width(8.dp))
@@ -118,10 +127,12 @@ fun DarkBanner(
     Surface(
         color = c.banner, contentColor = c.onBanner, shape = MaterialTheme.shapes.large, shadowElevation = 8.dp,
         modifier = modifier.windowInsetsPadding(WindowInsets.statusBars).padding(horizontal = 16.dp, vertical = 8.dp)
-            .fillMaxWidth(),
+            .fillMaxWidth()
+            .semantics(mergeDescendants = true) {},
     ) {
         Row(Modifier.padding(horizontal = 12.dp, vertical = 12.dp), verticalAlignment = Alignment.CenterVertically) {
-            Box(Modifier.size(44.dp).background(badgeColor, badgeShape), contentAlignment = Alignment.Center) { badge() }
+            Box(Modifier.size(44.dp).background(badgeColor, badgeShape).clearAndSetSemantics {},
+                contentAlignment = Alignment.Center) { badge() }
             Spacer(Modifier.width(14.dp))
             Column(verticalArrangement = Arrangement.spacedBy(2.dp)) {
                 Text(title, style = titleStyle, color = c.onBanner)

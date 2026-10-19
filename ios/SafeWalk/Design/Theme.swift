@@ -17,10 +17,11 @@ extension UIColor {
 enum SW {
     static let coral = Color(UIColor(hex: 0xFF8A8A))
     static let coralInk = Color(UIColor(hex: 0x3B1517))
-    /// Coral-deep, for text and icons on light surfaces.
-    static let accent = Color(UIColor.dynamic(0xE25C5C, 0xFF9E9E))
+    /// Coral-deep, for text and icons on light surfaces. #B5403D rather than #E25C5C so small text clears 4.5:1 on white and blush.
+    static let accent = Color(UIColor.dynamic(0xB5403D, 0xFF9E9E))
     static let ink = Color(UIColor.dynamic(0x231C1E, 0xF3ECEA))
     static let ink2 = Color(UIColor.dynamic(0x6E6366, 0xB8ADAF))
+    /// Decoration only (grabbers, dotted lines): too faint for text.
     static let ink3 = Color(UIColor.dynamic(0xA0979A, 0x8C8385))
     static let paper = Color(UIColor.dynamic(0xFAF6F5, 0x171213))
     static let card = Color(UIColor.dynamic(0xFFFFFF, 0x211A1B))
@@ -40,16 +41,18 @@ enum SW {
         // sand track, the chosen segment raised in white (card colour in dark mode)
         seg.backgroundColor = UIColor.dynamic(0xF2EBEA, 0x342B2C)
         seg.selectedSegmentTintColor = UIColor.dynamic(0xFFFFFF, 0x211A1B)
-        seg.setTitleTextAttributes([.foregroundColor: UIColor.dynamic(0x231C1E, 0xF3ECEA), .font: uiFont(.semibold, 14)], for: .selected)
-        seg.setTitleTextAttributes([.foregroundColor: UIColor.dynamic(0x6E6366, 0xB8ADAF), .font: uiFont(.medium, 14)], for: .normal)
+        seg.setTitleTextAttributes([.foregroundColor: UIColor.dynamic(0x231C1E, 0xF3ECEA), .font: uiFont(.semibold, 14, .subheadline)], for: .selected)
+        seg.setTitleTextAttributes([.foregroundColor: UIColor.dynamic(0x6E6366, 0xB8ADAF), .font: uiFont(.medium, 14, .subheadline)], for: .normal)
 
         let nav = UINavigationBar.appearance()
-        nav.largeTitleTextAttributes = [.font: uiFont(.bold, 32), .foregroundColor: UIColor.dynamic(0x231C1E, 0xF3ECEA)]
-        nav.titleTextAttributes = [.font: uiFont(.bold, 17), .foregroundColor: UIColor.dynamic(0x231C1E, 0xF3ECEA)]
+        nav.largeTitleTextAttributes = [.font: uiFont(.bold, 32, .largeTitle), .foregroundColor: UIColor.dynamic(0x231C1E, 0xF3ECEA)]
+        nav.titleTextAttributes = [.font: uiFont(.bold, 17, .headline), .foregroundColor: UIColor.dynamic(0x231C1E, 0xF3ECEA)]
     }
 
-    static func uiFont(_ w: Font.Weight, _ size: CGFloat) -> UIFont {
-        UIFont(name: Font.jakartaName(w), size: size) ?? .systemFont(ofSize: size)
+    /// Plus Jakarta Sans for UIKit, scaled with Dynamic Type like `style`.
+    static func uiFont(_ w: Font.Weight, _ size: CGFloat, _ style: UIFont.TextStyle = .body) -> UIFont {
+        let base = UIFont(name: Font.jakartaName(w), size: size) ?? .systemFont(ofSize: size)
+        return UIFontMetrics(forTextStyle: style).scaledFont(for: base)
     }
 }
 

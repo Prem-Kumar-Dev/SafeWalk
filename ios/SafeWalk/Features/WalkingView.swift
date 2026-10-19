@@ -33,6 +33,21 @@ struct WalkingView: View {
                 else { walkingSheet }
             }
         }
+        // VoiceOver users hear each new turn, the off-route warning and arrival without touching the screen.
+        .onChange(of: session.stepIndex) { _ in
+            if let step = session.nextStep { announce(L10n.instruction(step)) }
+        }
+        .onChange(of: session.offRoute) { off in
+            if off { announce(L10n.s("off_route_title")) }
+        }
+        .onChange(of: session.arrived) { done in
+            if done { announce(L10n.s("arrived")) }
+        }
+    }
+
+    private func announce(_ text: String) {
+        guard UIAccessibility.isVoiceOverRunning else { return }
+        UIAccessibility.post(notification: .announcement, argument: text)
     }
 
     // MARK: Top
@@ -76,7 +91,7 @@ struct WalkingView: View {
             }
             Text(L10n.f("walk_arrive_at", L10n.s(lower ? "route_lower_risk_title" : "route_direct_title"), arrive))
                 .font(.swCaption).foregroundStyle(SW.ink2)
-            Text(L10n.s("route_fine_print")).font(.swCaption).foregroundStyle(SW.ink3)
+            Text(L10n.s("route_fine_print")).font(.swCaption).foregroundStyle(SW.ink2)
             HStack(spacing: 12) {
                 Call911Button().layoutPriority(1)
                 Button(L10n.s("end")) { model.endWalking() }.buttonStyle(QuietButtonStyle()).frame(width: 110)
