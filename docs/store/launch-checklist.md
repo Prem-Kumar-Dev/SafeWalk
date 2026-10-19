@@ -12,7 +12,7 @@ What only Prem can do, in the order that avoids waiting. The repo side (privacy 
 ## Before the first upload
 
 5. **Check the privacy page is live.** GitHub Pages already serves the weekly data from `main`, so once this PR is merged `https://prem-kumar-dev.github.io/SafeWalk/privacy/` should open. Both stores check that the URL works.
-6. **iOS bundle ID** is set to `com.prem.safewalk` in `ios/project.yml`. Xcode registers it on your Apple account the first time you sign with automatic signing and set your Team ID in Xcode → Signing.
+6. **iOS bundle ID** is set to `com.prem.safewalk` in `ios/project.yml`. Pick your team in Xcode → Signing & Capabilities, and Xcode registers the ID on your Apple account the first time it signs.
 7. **Check the Android package name.** `android/app/build.gradle.kts` uses `app.safewalk`. Play package names are permanent and must be unique across all of Play. If the console says it's taken, switch to `com.prem.safewalk` to match iOS, and I'll change it before you upload.
 8. **Android signing key.** Create an upload key (Android Studio → Build → Generate Signed Bundle) and keep the `.jks` file and its passwords somewhere safe outside the repo. Let Play App Signing manage the release key.
 9. **App icon.** Both apps still use a placeholder. Item 3 of the plan covers this; both stores need a final icon (1024 × 1024 for Apple, 512 × 512 for Play).
