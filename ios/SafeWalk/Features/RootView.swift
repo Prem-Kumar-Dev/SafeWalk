@@ -39,8 +39,8 @@ struct RootView: View {
 struct AttributionText: View {
     var body: some View {
         Text("© OpenFreeMap © OpenMapTiles © OpenStreetMap contributors")
-            .font(.system(size: 9))
-            .foregroundStyle(.secondary)
+            .font(.jakarta(9, .medium, relativeTo: .caption2))
+            .foregroundStyle(SW.ink2)
             .padding(.horizontal, 6).padding(.vertical, 2)
             .background(.thinMaterial, in: Capsule())
             .accessibilityHidden(true)
@@ -56,23 +56,31 @@ struct MapHomeView: View {
 
     var body: some View {
         VStack(spacing: 8) {
-            HStack(spacing: 8) {
+            HStack(spacing: 10) {
                 Button { searching = true } label: {
-                    HStack {
+                    HStack(spacing: 12) {
                         Image(systemName: "magnifyingglass")
-                        Text(L10n.searchHint)
+                            .font(.system(size: 16, weight: .semibold))
+                            .foregroundStyle(SW.accent)
+                            .frame(width: 36, height: 36)
+                            .background(SW.blush, in: Circle())
+                        Text(L10n.searchHint).font(.swBody).foregroundStyle(SW.ink2)
                         Spacer()
                     }
-                    .foregroundStyle(.secondary)
-                    .padding(.horizontal, 14).padding(.vertical, 12)
-                    .background(.regularMaterial, in: RoundedRectangle(cornerRadius: 14))
+                    .padding(6)
+                    .background(SW.card, in: Capsule())
+                    .shadow(color: .black.opacity(0.12), radius: 10, y: 3)
                 }
+                .buttonStyle(.plain)
                 .accessibilityLabel(L10n.searchHint)
                 Button { showSettings = true } label: {
-                    Image(systemName: "gearshape").font(.title3)
-                        .frame(width: 46, height: 46)
-                        .background(.regularMaterial, in: RoundedRectangle(cornerRadius: 14))
+                    Image(systemName: "gearshape").font(.system(size: 18, weight: .semibold))
+                        .foregroundStyle(SW.ink)
+                        .frame(width: 48, height: 48)
+                        .background(SW.card, in: Circle())
+                        .shadow(color: .black.opacity(0.12), radius: 10, y: 3)
                 }
+                .buttonStyle(.plain)
                 .accessibilityLabel(L10n.s("settings"))
             }
             if model.userOutsideCoverage {
@@ -88,19 +96,24 @@ struct MapHomeView: View {
                 Notice(text: m, icon: "info.circle")
             }
             Spacer()
-            HStack(alignment: .bottom) {
-                if let pin = model.droppedPin { PinActions(model: model, coordinate: pin) }
+            HStack {
                 Spacer()
                 Button { model.recenter() } label: {
-                    Image(systemName: "location.fill").font(.title3)
-                        .frame(width: 48, height: 48)
-                        .background(.regularMaterial, in: Circle())
+                    Image(systemName: "location.fill").font(.system(size: 18, weight: .semibold))
+                        .foregroundStyle(SW.accent)
+                        .frame(width: 52, height: 52)
+                        .background(SW.card, in: Circle())
+                        .shadow(color: .black.opacity(0.15), radius: 8, y: 3)
                 }
+                .buttonStyle(.plain)
                 .accessibilityLabel(L10n.s("search_my_location"))
             }
-            .padding(.bottom, 18)
+            .padding(.bottom, model.droppedPin == nil ? 18 : 4)
         }
         .padding(.horizontal)
+        .safeAreaInset(edge: .bottom, spacing: 0) {
+            if let pin = model.droppedPin { PinActions(model: model, coordinate: pin) }
+        }
         .sheet(isPresented: $searching) { SearchView(model: model, purpose: .destination) }
         .sheet(isPresented: $showSettings) { SettingsView(model: model) }
     }
@@ -111,10 +124,11 @@ struct Notice: View {
     let icon: String
     var body: some View {
         Label(text, systemImage: icon)
-            .font(.footnote)
+            .font(.jakarta(13, .medium, relativeTo: .footnote))
+            .foregroundStyle(SW.ink)
             .frame(maxWidth: .infinity, alignment: .leading)
-            .padding(.horizontal, 12).padding(.vertical, 8)
-            .background(.regularMaterial, in: RoundedRectangle(cornerRadius: 10))
+            .padding(.horizontal, 14).padding(.vertical, 10)
+            .background(SW.blush, in: RoundedRectangle(cornerRadius: 16, style: .continuous))
     }
 }
 
@@ -124,22 +138,30 @@ struct PinActions: View {
     let coordinate: CLLocationCoordinate2D
 
     var body: some View {
-        HStack(spacing: 8) {
-            Button {
-                model.droppedPin = nil
-                model.planWalk(to: model.pinPlace(coordinate))
-            } label: { Label(L10n.s("pin_walk_here"), systemImage: "figure.walk") }
-                .buttonStyle(.borderedProminent)
-            Button {
-                model.droppedPin = nil
-                model.setStart(model.pinPlace(coordinate))
-            } label: { Text(L10n.s("pin_start_here")) }
-                .buttonStyle(.bordered)
-            Button { model.droppedPin = nil } label: { Image(systemName: "xmark") }
-                .buttonStyle(.bordered)
+        BottomCard {
+            HStack(alignment: .top) {
+                SheetTitle(title: L10n.s("search_dropped_pin"))
+                Spacer()
+                Button { model.droppedPin = nil } label: {
+                    Image(systemName: "xmark").font(.system(size: 14, weight: .bold)).foregroundStyle(SW.ink2)
+                        .frame(width: 32, height: 32).background(SW.sand, in: Circle())
+                }
+                .buttonStyle(.plain)
                 .accessibilityLabel(L10n.s("done"))
+            }
+            HStack(spacing: 12) {
+                Button {
+                    model.droppedPin = nil
+                    model.planWalk(to: model.pinPlace(coordinate))
+                } label: { Label(L10n.s("pin_walk_here"), systemImage: "figure.walk") }
+                    .buttonStyle(CoralButtonStyle())
+                Button {
+                    model.droppedPin = nil
+                    model.setStart(model.pinPlace(coordinate))
+                } label: { Text(L10n.s("pin_start_here")) }
+                    .buttonStyle(QuietButtonStyle())
+            }
+            .padding(.top, 20)
         }
-        .padding(8)
-        .background(.regularMaterial, in: RoundedRectangle(cornerRadius: 14))
     }
 }

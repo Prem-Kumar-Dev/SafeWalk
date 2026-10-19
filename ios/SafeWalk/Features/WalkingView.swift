@@ -1,87 +1,115 @@
 import SwiftUI
 
-/// Walking mode (spec 01 §5, 03 §6).
+/// Walking mode (spec 01 §5, 03 §6): dark next-turn banner on top, sheet at the bottom.
+/// Off-route and arrival replace the sheet's content rather than popping an alert.
 struct WalkingView: View {
     @ObservedObject var model: AppModel
     @ObservedObject var session: WalkSession
-    @Environment(\.openURL) private var openURL
 
     var body: some View {
         VStack(spacing: 10) {
-            instruction
+            banner
             Spacer()
-            HStack(alignment: .bottom) {
-                Button {
-                    // tel: opens the dialer with 911 filled in; the user still taps Call.
-                    if let url = URL(string: "tel://911") { openURL(url) }
-                } label: {
-                    Label(L10n.s("call_911"), systemImage: "phone.fill")
-                        .font(.headline)
-                        .padding(.horizontal, 14).padding(.vertical, 10)
-                        .background(Color.red, in: Capsule())
-                        .foregroundStyle(.white)
+            if !session.arrived {
+                HStack {
+                    Spacer()
+                    Button { model.recenter() } label: {
+                        Image(systemName: "location.north.line.fill").font(.system(size: 18, weight: .semibold))
+                            .foregroundStyle(SW.accent)
+                            .frame(width: 52, height: 52)
+                            .background(SW.card, in: Circle())
+                            .shadow(color: .black.opacity(0.15), radius: 8, y: 3)
+                    }
+                    .buttonStyle(.plain)
+                    .accessibilityLabel(L10n.s("search_my_location"))
                 }
-                .accessibilityLabel(L10n.s("call_911"))
-                Spacer()
-                Button { model.recenter() } label: {
-                    Image(systemName: "location.north.line.fill").font(.title3)
-                        .frame(width: 48, height: 48)
-                        .background(.regularMaterial, in: Circle())
-                }
-                .accessibilityLabel(L10n.s("search_my_location"))
+                .padding(.horizontal)
             }
-            footer
         }
-        .padding(.horizontal)
-        .padding(.bottom, 8)
-        .alert(L10n.s("off_route_prompt"), isPresented: Binding(get: { session.offRoute }, set: { if !$0 { session.dismissOffRoute() } })) {
-            Button(L10n.s("off_route_yes")) { model.rerouteFromHere() }
-            Button(L10n.s("location_not_now"), role: .cancel) { session.dismissOffRoute() }
-        }
-        .alert(L10n.s("arrived"), isPresented: Binding(get: { session.arrived }, set: { _ in })) {
-            Button(L10n.s("done")) { model.endWalking() }
+        .safeAreaInset(edge: .bottom, spacing: 0) {
+            BottomCard {
+                if session.arrived { arrivedSheet }
+                else if session.offRoute { offRouteSheet }
+                else { walkingSheet }
+            }
         }
     }
+
+    // MARK: Top
 
     @ViewBuilder
-    private var instruction: some View {
-        if let step = session.nextStep ?? session.route.steps[safe: session.stepIndex] {
-            instructionCard(step)
+    private var banner: some View {
+        if session.arrived {
+            EmptyView()
+        } else if session.offRoute {
+            DarkBanner(title: L10n.s("off_route_title"),
+                       subtitle: L10n.f("off_route_distance", model.units.format(session.offRouteMetres)),
+                       symbol: "exclamationmark.triangle.fill", badge: SW.amber, badgeInk: Color(UIColor(hex: 0x231C1E)))
+                .padding(.horizontal)
+        } else if let step = session.nextStep ?? session.route.steps[safe: session.stepIndex] {
+            DarkBanner(title: L10n.instruction(step),
+                       subtitle: session.metresToNextStep.map { model.units.format($0) },
+                       symbol: icon(step.maneuver), badge: SW.coral, badgeInk: SW.coralInk)
+                .padding(.horizontal)
         }
     }
 
-    private func instructionCard(_ step: TurnStep) -> some View {
+    // MARK: Bottom
+
+    private var walkingSheet: some View {
         VStack(alignment: .leading, spacing: 4) {
+            Text(L10n.f("walk_left_to_go", model.units.format(session.remainingMetres), session.remainingMinutes))
+                .font(.swTitle.monospacedDigit()).foregroundStyle(SW.ink)
+            Text(L10n.s("route_fine_print")).font(.swCaption).foregroundStyle(SW.ink2)
             HStack(spacing: 12) {
-                Image(systemName: icon(step.maneuver)).font(.title)
-                VStack(alignment: .leading, spacing: 2) {
-                    Text(L10n.instruction(step)).font(.title3.weight(.semibold))
-                    if let m = session.metresToNextStep {
-                        Text(model.units.format(m)).font(.subheadline).foregroundStyle(.secondary)
-                    }
-                }
-                Spacer()
+                Call911Button()
+                Button(L10n.s("end")) { model.endWalking() }.buttonStyle(QuietButtonStyle())
             }
+            .padding(.top, 16)
         }
-        .padding()
-        .background(.regularMaterial, in: RoundedRectangle(cornerRadius: 16))
-        .accessibilityElement(children: .combine)
     }
 
-    private var footer: some View {
-        HStack {
-            VStack(alignment: .leading) {
-                Text(L10n.f("walk_left_to_go", model.units.format(session.remainingMetres), session.remainingMinutes))
-                    .font(.headline.monospacedDigit())
-                Text(L10n.s("route_fine_print")).font(.caption2).foregroundStyle(.secondary)
+    private var offRouteSheet: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            SheetTitle(title: L10n.s("off_route_heading"), subtitle: L10n.s("off_route_ask"))
+            HStack(spacing: 12) {
+                Button(L10n.s("off_route_yes")) { model.rerouteFromHere() }.buttonStyle(CoralButtonStyle())
+                Button(L10n.s("location_not_now")) { session.dismissOffRoute() }.buttonStyle(QuietButtonStyle())
             }
-            Spacer()
-            Button(L10n.s("end")) { model.endWalking() }
-                .buttonStyle(.borderedProminent)
-                .tint(.secondary)
+            .padding(.top, 8)
+            Call911Button()
         }
-        .padding()
-        .background(.regularMaterial, in: RoundedRectangle(cornerRadius: 16))
+    }
+
+    private var arrivedSheet: some View {
+        let end = session.arrivedAt ?? Date()
+        let minutes = max(1, Int(end.timeIntervalSince(session.startedAt) / 60))
+        return VStack(alignment: .leading, spacing: 20) {
+            HStack(spacing: 16) {
+                Image(systemName: "checkmark").font(.system(size: 24, weight: .bold)).foregroundStyle(.white)
+                    .frame(width: 56, height: 56).background(SW.success, in: Circle())
+                    .accessibilityHidden(true)
+                SheetTitle(title: L10n.s("arrived"), subtitle: model.end?.title)
+            }
+            HStack(spacing: 12) {
+                stat(model.units.format(session.route.lengthMetres), L10n.s("arrived_walked"))
+                stat("\(minutes) min", L10n.s("arrived_on_foot"))
+                stat(end.formatted(date: .omitted, time: .shortened), L10n.s("arrived_at"))
+            }
+            Button(L10n.s("back_to_map")) { model.endWalking() }.buttonStyle(CoralButtonStyle())
+        }
+    }
+
+    private func stat(_ value: String, _ label: String) -> some View {
+        VStack(alignment: .leading, spacing: 4) {
+            Text(value).font(.jakarta(17, .semibold, relativeTo: .headline)).foregroundStyle(SW.ink)
+                .lineLimit(1).minimumScaleFactor(0.7)
+            Text(label).font(.swCaption).foregroundStyle(SW.ink2)
+        }
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .padding(14)
+        .background(SW.blushSoft, in: RoundedRectangle(cornerRadius: 18, style: .continuous))
+        .accessibilityElement(children: .combine)
     }
 
     private func icon(_ m: TurnStep.Maneuver) -> String {

@@ -5,9 +5,13 @@ struct SafeWalkApp: App {
     @StateObject private var model = AppModel()
     @Environment(\.scenePhase) private var scenePhase
 
+    init() { SW.configureAppearance() }
+
     var body: some Scene {
         WindowGroup {
             RootView(model: model)
+                .font(.swBody)
+                .tint(SW.accent)
                 .task { await model.load() }
         }
         .onChange(of: scenePhase) { phase in

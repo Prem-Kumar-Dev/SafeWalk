@@ -27,6 +27,14 @@
     <string name="off_route_prompt">You\'re off the route. Find a new route from here?</string>
     <string name="call_911">Call 911</string>
     <string name="arrived">You\'ve arrived</string>
+    <string name="arrived_walked">walked</string>
+    <string name="arrived_on_foot">on foot</string>
+    <string name="arrived_at">arrived</string>
+    <string name="back_to_map">Back to map</string>
+    <string name="off_route_title">Off the route</string>
+    <string name="off_route_distance">About %1$s from your route</string>
+    <string name="off_route_heading">You\'re off the route.</string>
+    <string name="off_route_ask">Find a new route from here?</string>
     <string name="update_app">Update the app to get new forecasts</string>
 
     <!-- Android-only -->
@@ -79,6 +87,13 @@
     <string name="units_miles">Miles</string>
     <string name="clear_recent">Clear recent places</string>
     <string name="map_data">Map data</string>
+    <string name="section_routes">Routes</string>
+    <string name="section_phone">On this phone</string>
+    <string name="section_about">About</string>
+    <string name="forecast_week">Forecast for the week of %1$s</string>
+    <string name="about_sub">How the forecast and routes work</string>
+    <string name="privacy_sub">Data not collected</string>
+    <string name="disclaimer_sub">Lower risk, not a guarantee</string>
     <string name="data_status">Forecast for the week of %1$s · %2$s</string>
     <string name="updated_never">bundled with the app</string>
     <string name="updated_today">updated today</string>

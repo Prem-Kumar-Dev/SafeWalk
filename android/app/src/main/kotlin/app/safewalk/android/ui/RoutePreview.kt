@@ -1,28 +1,32 @@
 package app.safewalk.android.ui
 
 import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBars
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.automirrored.filled.DirectionsWalk
 import androidx.compose.material.icons.filled.SwapVert
 import androidx.compose.material3.AlertDialog
-import androidx.compose.material3.AssistChip
-import androidx.compose.material3.Button
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.LinearProgressIndicator
@@ -65,35 +69,31 @@ import java.time.temporal.ChronoUnit
 fun RoutePreview(s: UiState, vm: SafeWalkViewModel, sheetModifier: Modifier) {
     // top: endpoints
     Surface(
-        tonalElevation = 3.dp, shadowElevation = 6.dp, shape = MaterialTheme.shapes.large,
-        modifier = Modifier.windowInsetsPadding(WindowInsets.statusBars).padding(12.dp).fillMaxWidth(),
+        shadowElevation = 8.dp, shape = MaterialTheme.shapes.large,
+        modifier = Modifier.windowInsetsPadding(WindowInsets.statusBars).padding(horizontal = 16.dp, vertical = 8.dp)
+            .fillMaxWidth(),
     ) {
         Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.padding(4.dp)) {
             IconButton(onClick = { vm.back() }) {
                 Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = stringResource(R.string.back))
             }
             Column(Modifier.weight(1f)) {
-                EndpointField(stringResource(R.string.from), s.start?.place?.name) { vm.openSearch(Field.START) }
-                EndpointField(stringResource(R.string.to), s.end?.place?.name) { vm.openSearch(Field.END) }
+                EndpointField(stringResource(R.string.from), s.start?.place?.name, end = false) { vm.openSearch(Field.START) }
+                HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant, modifier = Modifier.padding(start = 28.dp))
+                EndpointField(stringResource(R.string.to), s.end?.place?.name, end = true) { vm.openSearch(Field.END) }
             }
-            IconButton(onClick = vm::swap) { Icon(Icons.Default.SwapVert, contentDescription = stringResource(R.string.swap)) }
+            IconButton(onClick = vm::swap) {
+                Icon(Icons.Default.SwapVert, contentDescription = stringResource(R.string.swap), tint = SafeWalkTheme.colors.accent)
+            }
         }
     }
 
     // bottom sheet
-    Surface(
-        tonalElevation = 2.dp, shadowElevation = 12.dp,
-        shape = MaterialTheme.shapes.extraLarge.copy(bottomStart = androidx.compose.foundation.shape.CornerSize(0),
-            bottomEnd = androidx.compose.foundation.shape.CornerSize(0)),
-        modifier = sheetModifier.fillMaxWidth(),
-    ) {
-        Column(
-            Modifier.navigationBarsPadding().padding(16.dp).verticalScroll(rememberScrollState()),
-            verticalArrangement = Arrangement.spacedBy(12.dp),
-        ) {
+    BottomSheetCard(sheetModifier) {
+        Column(Modifier.verticalScroll(rememberScrollState()), verticalArrangement = Arrangement.spacedBy(14.dp)) {
             LeavingRow(s, vm)
             LevelPicker(s.level, vm::setLevel)
-            if (s.computing) LinearProgressIndicator(Modifier.fillMaxWidth())
+            if (s.computing) LinearProgressIndicator(Modifier.fillMaxWidth(), trackColor = SafeWalkTheme.colors.blush)
             when (val t = s.trip) {
                 is TripResult.Routes -> RouteCards(s, t, vm)
                 TripResult.OutsideArea -> Message(stringResource(R.string.outside_coverage))
@@ -107,10 +107,20 @@ fun RoutePreview(s: UiState, vm: SafeWalkViewModel, sheetModifier: Modifier) {
 }
 
 @Composable
-private fun EndpointField(label: String, value: String?, onClick: () -> Unit) {
-    Row(Modifier.fillMaxWidth().clickable(onClick = onClick).padding(vertical = 6.dp, horizontal = 4.dp)) {
-        Text(label, color = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.width(48.dp))
-        Text(value ?: "…", maxLines = 1, style = MaterialTheme.typography.bodyLarge)
+private fun EndpointField(label: String, value: String?, end: Boolean, onClick: () -> Unit) {
+    val coral = MaterialTheme.colorScheme.primary
+    Row(
+        Modifier.fillMaxWidth().clickable(onClickLabel = label, onClick = onClick).padding(vertical = 10.dp, horizontal = 4.dp),
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        Box(
+            Modifier.size(12.dp).then(
+                if (end) Modifier.background(coral, CircleShape) else Modifier.border(3.dp, coral, CircleShape)
+            )
+        )
+        Spacer(Modifier.width(16.dp))
+        Text(value ?: label, maxLines = 1, style = MaterialTheme.typography.bodyLarge,
+            color = if (value == null) MaterialTheme.colorScheme.onSurfaceVariant else MaterialTheme.colorScheme.onSurface)
     }
 }
 
@@ -120,13 +130,12 @@ private fun LeavingRow(s: UiState, vm: SafeWalkViewModel) {
     var picking by remember { mutableStateOf(false) }
     val zone = (s.data as? DataState.Ready)?.data?.zone
     Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-        Text(stringResource(R.string.leaving), style = MaterialTheme.typography.labelLarge)
-        AssistChip(onClick = { vm.setDeparture(null) }, label = { Text(stringResource(R.string.leaving_now)) },
-            border = if (s.departure == null) BorderStroke(2.dp, MaterialTheme.colorScheme.primary) else null)
+        Text(stringResource(R.string.leaving), style = MaterialTheme.typography.labelLarge,
+            color = MaterialTheme.colorScheme.onSurfaceVariant)
+        PillChip(stringResource(R.string.leaving_now), selected = s.departure == null) { vm.setDeparture(null) }
         val label = s.departure?.let { it.format(DateTimeFormatter.ofLocalizedTime(FormatStyle.SHORT)) }
             ?: stringResource(R.string.pick_time)
-        AssistChip(onClick = { picking = true }, label = { Text(label) },
-            border = if (s.departure != null) BorderStroke(2.dp, MaterialTheme.colorScheme.primary) else null)
+        PillChip(label, selected = s.departure != null) { picking = true }
     }
     if (picking && zone != null) {
         val now = ZonedDateTime.now(zone)
@@ -151,8 +160,9 @@ private fun LeavingRow(s: UiState, vm: SafeWalkViewModel) {
 @Composable
 fun LevelPicker(level: SafetyLevel, onPick: (SafetyLevel) -> Unit) {
     Column {
-        Text(stringResource(R.string.route_preference), style = MaterialTheme.typography.labelLarge)
-        Spacer(Modifier.height(6.dp))
+        Text(stringResource(R.string.route_preference), style = MaterialTheme.typography.labelLarge,
+            color = MaterialTheme.colorScheme.onSurfaceVariant)
+        Spacer(Modifier.height(8.dp))
         val levels = SafetyLevel.entries
         SingleChoiceSegmentedButtonRow(Modifier.fillMaxWidth()) {
             levels.forEachIndexed { i, l ->
@@ -160,7 +170,15 @@ fun LevelPicker(level: SafetyLevel, onPick: (SafetyLevel) -> Unit) {
                     selected = l == level,
                     onClick = { onPick(l) },
                     shape = SegmentedButtonDefaults.itemShape(i, levels.size),
-                ) { Text(levelLabel(l), maxLines = 1) }
+                    colors = SegmentedButtonDefaults.colors(
+                        activeContainerColor = MaterialTheme.colorScheme.primary,
+                        activeContentColor = MaterialTheme.colorScheme.onPrimary,
+                        activeBorderColor = MaterialTheme.colorScheme.primary,
+                        inactiveContainerColor = MaterialTheme.colorScheme.surface,
+                        inactiveBorderColor = MaterialTheme.colorScheme.outlineVariant,
+                    ),
+                    icon = {},
+                ) { Text(levelLabel(l), maxLines = 1, style = MaterialTheme.typography.labelLarge) }
             }
         }
     }
@@ -187,6 +205,7 @@ private fun RouteCards(s: UiState, t: TripResult.Routes, vm: SafeWalkViewModel) 
                 stretches(safer),
             ),
             emphasiseExtra = safer.lengthM > t.direct.lengthM * 1.25,
+            stretches = safer.higherRiskStretches,
             selected = s.choice == RouteChoice.LOWER_RISK,
         ) { vm.choose(RouteChoice.LOWER_RISK) }
     }
@@ -194,6 +213,7 @@ private fun RouteCards(s: UiState, t: TripResult.Routes, vm: SafeWalkViewModel) 
         title = stringResource(R.string.route_direct_title), r = s, d = t.direct,
         lines = listOf(stretches(t.direct)),
         emphasiseExtra = false,
+        stretches = t.direct.higherRiskStretches,
         selected = safer == null || s.choice == RouteChoice.DIRECT,
     ) { vm.choose(RouteChoice.DIRECT) }
     if (t.directIsLowerRisk) Message(stringResource(R.string.route_direct_is_best))
@@ -210,8 +230,8 @@ private fun RouteCards(s: UiState, t: TripResult.Routes, vm: SafeWalkViewModel) 
                 color = MaterialTheme.colorScheme.onSurfaceVariant)
         }
     }
-    Button(onClick = vm::startWalking, modifier = Modifier.fillMaxWidth().height(52.dp)) {
-        Text(stringResource(R.string.start_walking))
+    PrimaryButton(stringResource(R.string.start_walking), vm::startWalking, Modifier.fillMaxWidth()) {
+        Icon(Icons.AutoMirrored.Filled.DirectionsWalk, contentDescription = null)
     }
 }
 
@@ -222,23 +242,37 @@ private fun stretches(d: RouteDetails) =
 
 @Composable
 private fun RouteCard(
-    title: String, r: UiState, d: RouteDetails, lines: List<String>, emphasiseExtra: Boolean,
+    title: String, r: UiState, d: RouteDetails, lines: List<String>, emphasiseExtra: Boolean, stretches: Int,
     selected: Boolean, onClick: () -> Unit,
 ) {
+    val c = SafeWalkTheme.colors
     val head = stringResource(R.string.route_summary, formatDistance(d.lengthM, r.units), formatMinutes(d.walkingMinutes))
     val all = "$title · $head. " + lines.joinToString(". ")
     Surface(
         onClick = onClick,
         shape = MaterialTheme.shapes.large,
+        color = if (selected) c.blushSoft else MaterialTheme.colorScheme.surface,
         border = BorderStroke(if (selected) 2.dp else 1.dp,
             if (selected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.outlineVariant),
         modifier = Modifier.fillMaxWidth().clearAndSetSemantics { contentDescription = all; this.selected = selected },
     ) {
-        Column(Modifier.padding(14.dp)) {
-            Text("$title · $head", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.SemiBold)
+        Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(4.dp)) {
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Text(title, style = MaterialTheme.typography.titleMedium, modifier = Modifier.weight(1f))
+                Text(formatMinutes(d.walkingMinutes), style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
+            }
+            Text(formatDistance(d.lengthM, r.units), style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant)
             lines.forEachIndexed { i, l ->
-                Text(l, style = if (i == 0 && emphasiseExtra) MaterialTheme.typography.titleSmall else MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant)
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    // the stretches line is always last; mark it amber when there are any
+                    if (i == lines.lastIndex && stretches > 0) {
+                        Box(Modifier.size(8.dp).background(c.amber, CircleShape))
+                        Spacer(Modifier.width(8.dp))
+                    }
+                    Text(l, style = if (i == 0 && emphasiseExtra) MaterialTheme.typography.titleSmall else MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant)
+                }
             }
         }
     }
@@ -246,5 +280,5 @@ private fun RouteCard(
 
 @Composable
 private fun Message(text: String) {
-    Text(text, style = MaterialTheme.typography.bodyMedium)
+    Text(text, style = MaterialTheme.typography.bodyLarge)
 }

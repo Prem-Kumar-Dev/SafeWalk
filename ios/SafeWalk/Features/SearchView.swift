@@ -63,11 +63,11 @@ struct SearchView: View {
                             model.useMyLocationAsStart()
                             dismiss()
                         } label: {
-                            Label(L10n.s("search_my_location"), systemImage: "location.fill")
+                            row(L10n.s("search_my_location"), nil, icon: "location.fill")
                         }
                     }
                     if !model.recents.isEmpty {
-                        Section(L10n.s("search_recent")) {
+                        Section(header: Text(L10n.s("search_recent")).font(.swSection).foregroundStyle(SW.accent)) {
                             ForEach(model.recents) { p in
                                 Button { choose(p) } label: { row(p.title, p.subtitle, icon: "clock") }
                             }
@@ -80,12 +80,13 @@ struct SearchView: View {
                         } label: { row(r.title, r.subtitle, icon: "mappin.circle") }
                     }
                     if search.results.isEmpty {
-                        Text(L10n.s("search_no_results")).foregroundStyle(.secondary)
+                        Text(L10n.s("search_no_results")).font(.swBody).foregroundStyle(SW.ink2)
                     }
                 }
             }
             .listStyle(.plain)
-            .overlay { if resolving { ProgressView() } }
+            .font(.swBody)
+            .overlay { if resolving { ProgressView().tint(SW.accent) } }
             .searchable(text: $search.query, placement: .navigationBarDrawer(displayMode: .always),
                         prompt: purpose == .start ? L10n.s("choose_start") : L10n.searchHint)
             .navigationTitle(purpose == .start ? L10n.s("from") : L10n.s("to"))
@@ -99,11 +100,12 @@ struct SearchView: View {
 
     private func row(_ title: String, _ subtitle: String?, icon: String) -> some View {
         HStack(spacing: 12) {
-            Image(systemName: icon).foregroundStyle(.secondary).frame(width: 24)
+            Image(systemName: icon).font(.system(size: 15, weight: .semibold)).foregroundStyle(SW.accent)
+                .frame(width: 36, height: 36).background(SW.blush, in: Circle())
             VStack(alignment: .leading, spacing: 2) {
-                Text(title).foregroundStyle(.primary)
+                Text(title).font(.swBody).foregroundStyle(SW.ink)
                 if let subtitle, !subtitle.isEmpty {
-                    Text(subtitle).font(.footnote).foregroundStyle(.secondary)
+                    Text(subtitle).font(.swCaption).foregroundStyle(SW.ink2)
                 }
             }
         }

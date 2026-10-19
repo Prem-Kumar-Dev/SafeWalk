@@ -1,132 +1,146 @@
 package app.safewalk.android.ui
 
-import android.content.Intent
-import android.net.Uri
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.statusBars
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.layout.windowInsetsPadding
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Phone
-import androidx.compose.material3.AlertDialog
-import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material.icons.filled.Check
+import androidx.compose.material.icons.filled.WarningAmber
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import app.safewalk.android.R
 import app.safewalk.core.RouteDetails
 import app.safewalk.core.Step
 import app.safewalk.core.Turn
+import java.time.Instant
+import java.time.ZoneId
+import java.time.format.DateTimeFormatter
+import java.time.format.FormatStyle
 import kotlin.math.roundToInt
 
 @Composable
 fun WalkingOverlay(s: UiState, vm: SafeWalkViewModel) {
     val walk = s.walk ?: return
     val view = LocalView.current
-    val context = LocalContext.current
+    val c = SafeWalkTheme.colors
     DisposableEffect(Unit) {
         view.keepScreenOn = true
         onDispose { view.keepScreenOn = false }
     }
 
     Box(Modifier.fillMaxSize()) {
-        // next step
-        Surface(
-            color = MaterialTheme.colorScheme.primary, contentColor = MaterialTheme.colorScheme.onPrimary,
-            shape = MaterialTheme.shapes.large, shadowElevation = 6.dp,
-            modifier = Modifier.windowInsetsPadding(WindowInsets.statusBars).padding(12.dp).fillMaxWidth(),
-        ) {
-            val fix = walk.fix
-            Row(Modifier.padding(16.dp), verticalAlignment = Alignment.CenterVertically) {
+        val fix = walk.fix
+        when {
+            walk.arrived -> Unit
+            walk.offRoutePrompt -> DarkBanner(
+                title = stringResource(R.string.off_route_title),
+                subtitle = fix?.let { stringResource(R.string.off_route_distance, formatDistance(it.offRouteM, s.units)) },
+                badgeColor = c.amber,
+            ) { Icon(Icons.Default.WarningAmber, contentDescription = null, tint = Ink, modifier = Modifier.size(22.dp)) }
+            else -> {
                 val step = fix?.nextStep
-                Text(arrow(step?.turn), style = MaterialTheme.typography.headlineMedium)
-                Spacer(Modifier.width(14.dp))
-                Column {
+                DarkBanner(
+                    title = when {
+                        step != null -> instruction(step)
+                        fix == null && walk.route.steps.isNotEmpty() -> instruction(walk.route.steps.first())
+                        else -> stringResource(R.string.arrive_destination)
+                    },
+                    subtitle = fix?.let { formatDistance(it.metresToNextStep, s.units) },
+                    badgeColor = MaterialTheme.colorScheme.primary,
+                ) { Text(arrow(step?.turn), color = CoralInk, fontSize = 22.sp, fontWeight = FontWeight.Bold) }
+            }
+        }
+
+        BottomSheetCard(Modifier.align(Alignment.BottomCenter)) {
+            when {
+                walk.arrived -> Arrived(s, walk, vm)
+                walk.offRoutePrompt -> {
+                    SheetTitle(stringResource(R.string.off_route_heading), stringResource(R.string.off_route_ask))
+                    Spacer(Modifier.height(20.dp))
+                    Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+                        PrimaryButton(stringResource(R.string.yes), vm::rerouteFromHere, Modifier.weight(1f))
+                        QuietButton(stringResource(R.string.not_now), vm::dismissOffRoute, Modifier.weight(1f))
+                    }
+                    Spacer(Modifier.height(12.dp))
+                    Call911Button(Modifier.fillMaxWidth())
+                }
+                else -> {
+                    val left = fix?.remainingM ?: walk.route.lengthM
                     Text(
-                        when {
-                            walk.arrived -> stringResource(R.string.arrived)
-                            step != null -> instruction(step)
-                            fix == null && walk.route.steps.isNotEmpty() -> instruction(walk.route.steps.first())
-                            else -> stringResource(R.string.arrive_destination)
-                        },
-                        style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.SemiBold,
+                        stringResource(R.string.left_summary, formatDistance(left, s.units),
+                            (left / RouteDetails.WALK_SPEED_MS / 60).roundToInt()),
+                        style = MaterialTheme.typography.titleLarge,
                     )
-                    if (fix != null && !walk.arrived) Text(formatDistance(fix.metresToNextStep, s.units))
-                }
-            }
-        }
-
-        // bottom bar
-        Surface(
-            tonalElevation = 2.dp, shadowElevation = 12.dp,
-            modifier = Modifier.align(Alignment.BottomCenter).fillMaxWidth(),
-        ) {
-            Column(Modifier.navigationBarsPadding().padding(16.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
-                val left = walk.fix?.remainingM ?: walk.route.lengthM
-                Text(
-                    stringResource(R.string.left_summary, formatDistance(left, s.units),
-                        (left / RouteDetails.WALK_SPEED_MS / 60).roundToInt()),
-                    style = MaterialTheme.typography.titleMedium,
-                )
-                Text(stringResource(R.string.route_fine_print), style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant)
-                Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-                    // opens the dialer with 911 filled in; the user taps once more to call
-                    Button(
-                        onClick = { context.startActivity(Intent(Intent.ACTION_DIAL, Uri.parse("tel:911"))) },
-                        colors = ButtonDefaults.buttonColors(containerColor = Emergency, contentColor = Color.White),
-                        modifier = Modifier.weight(1f).height(52.dp),
-                    ) {
-                        Icon(Icons.Default.Phone, contentDescription = null)
-                        Spacer(Modifier.width(8.dp))
-                        Text(stringResource(R.string.call_911))
-                    }
-                    OutlinedButton(onClick = vm::endWalk, modifier = Modifier.weight(1f).height(52.dp)) {
-                        Text(stringResource(R.string.end))
+                    Spacer(Modifier.height(4.dp))
+                    Text(stringResource(R.string.route_fine_print), style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant)
+                    Spacer(Modifier.height(20.dp))
+                    Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+                        Call911Button(Modifier.weight(1f))
+                        QuietButton(stringResource(R.string.end), vm::endWalk, Modifier.weight(1f))
                     }
                 }
             }
         }
     }
+}
 
-    if (walk.offRoutePrompt) {
-        AlertDialog(
-            onDismissRequest = vm::dismissOffRoute,
-            text = { Text(stringResource(R.string.off_route_prompt)) },
-            confirmButton = { TextButton(onClick = vm::rerouteFromHere) { Text(stringResource(R.string.yes)) } },
-            dismissButton = { TextButton(onClick = vm::dismissOffRoute) { Text(stringResource(R.string.not_now)) } },
-        )
+@Composable
+private fun Arrived(s: UiState, walk: WalkState, vm: SafeWalkViewModel) {
+    val c = SafeWalkTheme.colors
+    val arrivedAt = walk.arrivedAtMs ?: System.currentTimeMillis()
+    val minutes = ((arrivedAt - walk.startedAtMs) / 60_000).toInt().coerceAtLeast(1)
+    val clock = Instant.ofEpochMilli(arrivedAt).atZone(ZoneId.systemDefault()).toLocalTime()
+        .format(DateTimeFormatter.ofLocalizedTime(FormatStyle.SHORT))
+    Row(verticalAlignment = Alignment.CenterVertically) {
+        Box(Modifier.size(56.dp).background(c.success, CircleShape), contentAlignment = Alignment.Center) {
+            Icon(Icons.Default.Check, contentDescription = null, tint = Color.White, modifier = Modifier.size(28.dp))
+        }
+        Spacer(Modifier.width(16.dp))
+        Column {
+            SheetTitle(stringResource(R.string.arrived), s.end?.place?.name)
+        }
     }
-    if (walk.arrived) {
-        AlertDialog(
-            onDismissRequest = vm::endWalk,
-            text = { Text(stringResource(R.string.arrived), style = MaterialTheme.typography.titleLarge) },
-            confirmButton = { TextButton(onClick = vm::endWalk) { Text(stringResource(R.string.ok)) } },
-        )
+    Spacer(Modifier.height(20.dp))
+    Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+        Stat(formatDistance(walk.route.lengthM, s.units), stringResource(R.string.arrived_walked), Modifier.weight(1f))
+        Stat(formatMinutes(minutes), stringResource(R.string.arrived_on_foot), Modifier.weight(1f))
+        Stat(clock, stringResource(R.string.arrived_at), Modifier.weight(1f))
+    }
+    Spacer(Modifier.height(20.dp))
+    PrimaryButton(stringResource(R.string.back_to_map), vm::endWalk, Modifier.fillMaxWidth())
+}
+
+@Composable
+private fun Stat(value: String, label: String, modifier: Modifier) {
+    Surface(color = SafeWalkTheme.colors.blushSoft, shape = RoundedCornerShape(18.dp), modifier = modifier) {
+        Column(Modifier.padding(14.dp)) {
+            Text(value, style = MaterialTheme.typography.titleMedium, maxLines = 1)
+            Text(label, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+        }
     }
 }
 

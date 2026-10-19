@@ -35,6 +35,8 @@ targets:
         UISupportedInterfaceOrientations: [UIInterfaceOrientationPortrait]
         NSLocationWhenInUseUsageDescription: SafeWalk uses your location to show where you are and to start routes from there. It never leaves your phone.
         ITSAppUsesNonExemptEncryption: false
+        # Plus Jakarta Sans (SIL OFL 1.1, Resources/Fonts/OFL.txt)
+        UIAppFonts: [PlusJakartaSans-Regular.ttf, PlusJakartaSans-Medium.ttf, PlusJakartaSans-SemiBold.ttf, PlusJakartaSans-Bold.ttf]
     settings:
       base:
         SWIFT_VERSION: "5.0"
