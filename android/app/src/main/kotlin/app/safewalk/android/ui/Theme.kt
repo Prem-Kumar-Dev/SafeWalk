@@ -2,6 +2,7 @@ package app.safewalk.android.ui
 
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Shapes
 import androidx.compose.material3.Typography
@@ -129,11 +130,10 @@ object SafeWalkTheme {
 fun SafeWalkTheme(content: @Composable () -> Unit) {
     val dark = isSystemInDarkTheme()
     CompositionLocalProvider(LocalSafeWalkColors provides if (dark) DarkExtra else LightExtra) {
-        MaterialTheme(
-            colorScheme = if (dark) Dark else Light,
-            typography = SafeWalkType,
-            shapes = SafeWalkShapes,
-            content = content,
-        )
+        val scheme = if (dark) Dark else Light
+        MaterialTheme(colorScheme = scheme, typography = SafeWalkType, shapes = SafeWalkShapes) {
+            // Text outside a Surface falls back to LocalContentColor, which is black unless set here.
+            CompositionLocalProvider(LocalContentColor provides scheme.onBackground, content = content)
+        }
     }
 }

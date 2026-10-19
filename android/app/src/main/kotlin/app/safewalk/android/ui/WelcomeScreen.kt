@@ -94,7 +94,7 @@ private fun IntroPage(page: Int, next: () -> Unit, skip: () -> Unit) {
                 }
             }
             Box(Modifier.padding(top = 8.dp, end = 12.dp).fillMaxWidth().aspectRatio(1.15f)
-                .background(SafeWalkTheme.colors.blushSoft, RoundedCornerShape(28.dp))
+                .background(IllustrationPaper, RoundedCornerShape(28.dp))
                 .clearAndSetSemantics {}) {
                 Illustration(page)
             }
@@ -125,11 +125,15 @@ private fun PageDots(page: Int) {
     }
 }
 
+// The illustration sits on the coral panel, which is coral in both themes, so it keeps its light colours in dark mode.
+private val IllustrationPaper = Color(0xFFFFF4F3)
+private val IllustrationGrid = Color(0xFFFFE3E1)
+
 /** Grid of blocks with a coral stepped route and the dotted straight line it avoids; page 2 adds times, page 3 a phone. */
 @Composable
 private fun BoxScope.Illustration(page: Int) {
     val coral = MaterialTheme.colorScheme.primary
-    val grid = SafeWalkTheme.colors.blush
+    val grid = IllustrationGrid
     val grey = SafeWalkTheme.colors.routeOther
     val ink = Ink
     Canvas(Modifier.matchParentSize()) {
