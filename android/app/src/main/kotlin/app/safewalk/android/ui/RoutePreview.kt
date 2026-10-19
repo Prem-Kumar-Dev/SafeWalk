@@ -116,7 +116,7 @@ private fun EndpointField(label: String, value: String?, end: Boolean, onClick: 
         modifier = Modifier.fillMaxWidth()) {
         Row(Modifier.padding(horizontal = 12.dp, vertical = 10.dp), verticalAlignment = Alignment.CenterVertically) {
             Box(
-                Modifier.size(10.dp).background(if (end) Ink else coral, if (end) RoundedCornerShape(2.dp) else CircleShape)
+                Modifier.size(10.dp).background(if (end) MaterialTheme.colorScheme.onSurface else coral, if (end) RoundedCornerShape(2.dp) else CircleShape)
             )
             Spacer(Modifier.width(12.dp))
             Text(value ?: label, maxLines = 1, style = MaterialTheme.typography.bodyLarge,
