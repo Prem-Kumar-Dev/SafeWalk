@@ -35,9 +35,9 @@ Run `xcodegen` again whenever files are added or `project.yml` changes.
    Your team will show up as "Your Name (Personal Team)".
 2. Run `open SafeWalk.xcodeproj`. Select the **SafeWalk** target and open **Signing & Capabilities**.
    Tick *Automatically manage signing* and pick your Personal Team.
-3. Change **Bundle Identifier** to something only you use, e.g. `com.prem.safewalk`. The example one won't sign.
-   To make this stick when you re-run `xcodegen`, put the same values in `project.yml`:
-   `bundleIdPrefix: com.prem` and `DEVELOPMENT_TEAM: "<your team id>"`. The team ID is the 10-character code
+3. The **Bundle Identifier** is already `com.prem.safewalk` (set in `project.yml`).
+   To make your team stick when you re-run `xcodegen`, put it in `project.yml` as
+   `DEVELOPMENT_TEAM: "<your team id>"`. The team ID is the 10-character code
    shown under Membership details at developer.apple.com/account, or in the Signing panel.
 
 ## 4. Run on your iPhone
@@ -54,9 +54,9 @@ Run `xcodegen` again whenever files are added or `project.yml` changes.
      -allowProvisioningUpdates -derivedDataPath build build
    xcrun devicectl device install app --device <phone-identifier> \
      build/Build/Products/Debug-iphoneos/SafeWalk.app
-   xcrun devicectl device process launch --device <phone-identifier> com.prem.safewalk.SafeWalk
+   xcrun devicectl device process launch --device <phone-identifier> com.prem.safewalk
    ```
-   Use your own bundle ID in the last line. With SweetPad, choose the scheme and the device and press Run.
+   With SweetPad, choose the scheme and the device and press Run.
 4. The first launch may say "Untrusted Developer". On the phone, go to **Settings → General → VPN & Device Management**,
    tap your Apple ID and tap **Trust**.
 
@@ -92,7 +92,7 @@ The run ends with `** TEST SUCCEEDED **`. In Xcode, **⌘U** runs the same tests
 
 - **Compile errors on the first build:** this code was written without a Mac. Paste the errors into the iOS thread
   and they'll be fixed.
-- **"No profiles for 'com.example…'":** change the bundle ID (step 3.3).
+- **"No profiles for 'com.prem.safewalk'":** pick your team in Signing & Capabilities (step 3.2).
 - **"Could not locate device support files":** update Xcode, or open Xcode with the phone connected and wait for it
   to finish "Preparing iPhone".
 - **MapLibre package not found:** in Xcode, use **File → Packages → Resolve Package Versions**.
