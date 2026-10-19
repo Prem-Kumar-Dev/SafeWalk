@@ -1,0 +1,71 @@
+# Generate the Xcode project on a Mac with:  brew install xcodegen && xcodegen
+name: SafeWalk
+options:
+  bundleIdPrefix: com.example.safewalk   # change to your own reverse-DNS prefix before shipping
+  deploymentTarget:
+    iOS: "16.0"
+  createIntermediateGroups: true
+
+packages:
+  MapLibre:
+    url: https://github.com/maplibre/maplibre-gl-native-distribution
+    from: 6.0.0
+
+targets:
+  SafeWalk:
+    type: application
+    platform: iOS
+    sources:
+      - path: SafeWalk
+        excludes:
+          - "Data/**"
+      # Bundled data folder (spec 02: the app ships with a graph and risk file so first launch works offline).
+      - path: SafeWalk/Data
+        type: folder
+        buildPhase: resources
+    dependencies:
+      - package: MapLibre
+    info:
+      path: SafeWalk/Info.plist
+      properties:
+        CFBundleDisplayName: SafeWalk
+        CFBundleShortVersionString: "0.1.0"
+        CFBundleVersion: "1"
+        UILaunchScreen: {}
+        UISupportedInterfaceOrientations: [UIInterfaceOrientationPortrait]
+        NSLocationWhenInUseUsageDescription: SafeWalk uses your location to show where you are and to start routes from there. It never leaves your phone.
+        ITSAppUsesNonExemptEncryption: false
+    settings:
+      base:
+        SWIFT_VERSION: "5.0"
+        TARGETED_DEVICE_FAMILY: "1"
+        CODE_SIGN_STYLE: Automatic
+        DEVELOPMENT_TEAM: ""             # set your Apple team ID, or pick it in Xcode > Signing
+        ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
+        ENABLE_PREVIEWS: YES
+
+  SafeWalkTests:
+    type: bundle.unit-test
+    platform: iOS
+    sources:
+      - path: SafeWalkTests
+        excludes:
+          - "Fixtures/**"
+      - path: SafeWalkTests/Fixtures
+        type: folder
+        buildPhase: resources
+    dependencies:
+      - target: SafeWalk
+    settings:
+      base:
+        SWIFT_VERSION: "5.0"
+
+schemes:
+  SafeWalk:
+    build:
+      targets:
+        SafeWalk: all
+        SafeWalkTests: [test]
+    test:
+      targets:
+        - SafeWalkTests

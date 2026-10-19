@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Recent places and settings may be backed up; the downloaded data files are re-fetched instead. -->
+<full-backup-content>
+    <exclude domain="file" path="data" />
+</full-backup-content>

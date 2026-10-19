@@ -1,0 +1,106 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Keys shared with iOS (app-spec/01-screens.md). Keep the wording identical on both platforms. -->
+    <string name="app_name">SafeWalk</string>
+    <string name="welcome_1">Walk the way that\'s had fewer reported street crimes.</string>
+    <string name="welcome_2">Pick where you\'re going. SafeWalk shows the direct route and a lower-risk route, and how much longer it is.</string>
+    <string name="welcome_3">Everything runs on your phone. Your location and trips are never sent anywhere.</string>
+    <string name="disclaimer_body">SafeWalk suggests routes that have had fewer reported street crimes at this time of day. It is a lower-risk suggestion, not a guarantee of safety. Stay aware of your surroundings, and call 911 in an emergency.</string>
+    <string name="disclaimer_accept">I understand</string>
+    <string name="search_hint">Where to?</string>
+    <string name="route_lower_risk_title">Lower-risk route</string>
+    <string name="route_direct_title">Direct route</string>
+    <string name="route_risk_cut">%1$d%% lower predicted risk</string>
+    <string name="route_extra_time">%1$d min longer</string>
+    <plurals name="route_stretches">
+        <item quantity="one">Passes %1$d higher-risk stretch</item>
+        <item quantity="other">Passes %1$d higher-risk stretches</item>
+    </plurals>
+    <string name="route_none_stretches">No higher-risk stretches</string>
+    <string name="route_direct_is_best">The direct route is already the lower-risk choice at this time.</string>
+    <string name="route_fine_print">Based on reported crimes. Lower risk, not a guarantee.</string>
+    <string name="forecast_age">Forecast from the week of %1$s.</string>
+    <string name="forecast_stale">This forecast is out of date. Connect to the internet to update.</string>
+    <string name="outside_coverage">SafeWalk covers Chicago only for now.</string>
+    <string name="too_far_from_street">Move the pin closer to a street.</string>
+    <string name="already_there">You\'re already there.</string>
+    <string name="off_route_prompt">You\'re off the route. Find a new route from here?</string>
+    <string name="call_911">Call 911</string>
+    <string name="arrived">You\'ve arrived</string>
+    <string name="update_app">Update the app to get new forecasts</string>
+
+    <!-- Android-only -->
+    <string name="next">Next</string>
+    <string name="location_reason">To start routes from where you are.</string>
+    <string name="allow_location">Allow location</string>
+    <string name="not_now">Not now</string>
+    <string name="walk_here">Walk here</string>
+    <string name="start_here">Start here</string>
+    <string name="dropped_pin">Dropped pin</string>
+    <string name="your_location">Your location</string>
+    <string name="from">From</string>
+    <string name="to">To</string>
+    <string name="choose_start">Choose start</string>
+    <string name="swap">Swap start and destination</string>
+    <string name="leaving">Leaving</string>
+    <string name="leaving_now">Now</string>
+    <string name="leaving_at">Leaving at %1$s</string>
+    <string name="pick_time">Pick a time</string>
+    <string name="ok">OK</string>
+    <string name="cancel">Cancel</string>
+    <string name="route_preference">Route preference</string>
+    <string name="level_direct">Direct</string>
+    <string name="level_balanced">Balanced</string>
+    <string name="level_lowest_risk">Lowest risk</string>
+    <string name="route_summary">%1$s · %2$s</string>
+    <string name="long_walk">This is a long walk.</string>
+    <string name="no_forecast">The forecast is not available right now, so only the direct route is shown.</string>
+    <string name="no_route">No walking route was found between these points.</string>
+    <string name="start_walking">Start walking</string>
+    <string name="end">End</string>
+    <string name="yes">Yes</string>
+    <string name="left_summary">%1$s left · %2$d min</string>
+    <string name="turn_left">Turn left onto %1$s</string>
+    <string name="turn_right">Turn right onto %1$s</string>
+    <string name="continue_onto">Continue onto %1$s</string>
+    <string name="make_u_turn">Make a U-turn onto %1$s</string>
+    <string name="head_along">Head along %1$s</string>
+    <string name="arrive_destination">Arrive at your destination</string>
+    <string name="path">path</string>
+    <string name="recent">Recent</string>
+    <string name="no_results">No places found in Chicago</string>
+    <string name="search_unavailable">Place search isn\'t available on this phone. Long-press the map to drop a pin instead.</string>
+    <string name="my_location">My location</string>
+    <string name="centre_on_me">Show my location</string>
+    <string name="settings">Settings</string>
+    <string name="back">Back</string>
+    <string name="units">Units</string>
+    <string name="units_km">Kilometres</string>
+    <string name="units_miles">Miles</string>
+    <string name="clear_recent">Clear recent places</string>
+    <string name="map_data">Map data</string>
+    <string name="data_status">Forecast for the week of %1$s · %2$s</string>
+    <string name="updated_never">bundled with the app</string>
+    <string name="updated_today">updated today</string>
+    <plurals name="updated_days_ago">
+        <item quantity="one">updated %1$d day ago</item>
+        <item quantity="other">updated %1$d days ago</item>
+    </plurals>
+    <string name="check_update">Check for update</string>
+    <string name="checking">Checking…</string>
+    <string name="about">About and how it works</string>
+    <string name="privacy">Privacy</string>
+    <string name="disclaimer">Disclaimer</string>
+    <string name="about_body_1">SafeWalk uses ten years of crime reports published by the City of Chicago, counting street crimes against people (such as robbery and assault) in public places, not domestic incidents. A forecasting model predicts, for each block and each part of the day, how often such crimes are reported compared with the city average. When you ask for a route, your phone finds a path that keeps walking distance low while passing fewer of the higher-risk blocks. In tests on 2024 data the model had not seen, the Balanced route was about 4% longer and passed about half as many real reported crimes as the shortest route.</string>
+    <string name="about_body_2">Reported crime is not the same as all crime, and reporting and policing differ between places. Treat the route as one input to your own judgement.</string>
+    <string name="about_sources">Data sources: City of Chicago Data Portal (crimes ijzp-q8t2, street centerlines pr57-gg9e). Map data © OpenStreetMap contributors (ODbL). Map tiles by OpenFreeMap, built with OpenMapTiles. Map rendering by MapLibre.</string>
+    <string name="about_model">Model %1$s · forecast for the week of %2$s</string>
+    <string name="about_contact">Feedback: %1$s</string>
+    <string name="privacy_body">SafeWalk does not collect, store on a server, or share your location, your searches or your trips. Routes are calculated on your phone. The app downloads map tiles and the weekly forecast file, which tells those servers your IP address as any download does. Place search uses Apple\'s or Google\'s built-in search on your phone, under their privacy terms.</string>
+    <string name="map_attribution">© OpenFreeMap © OpenMapTiles © OpenStreetMap contributors</string>
+    <string name="loading_data">Loading Chicago streets…</string>
+    <string name="data_failed">Couldn\'t load the street data: %1$s</string>
+    <string name="computing">Finding routes…</string>
+    <!-- Set before release; the About screen hides the line while empty. -->
+    <string name="feedback_email" translatable="false"></string>
+</resources>

@@ -1,0 +1,36 @@
+{
+  "format_version": 1,
+  "min_app_format": 1,
+  "city": "chicago",
+  "display_name": "Chicago",
+  "timezone": "America/Chicago",
+  "bbox": [
+    41.644584,
+    -87.855835,
+    42.022927,
+    -87.524527
+  ],
+  "generated_at": "2026-10-18T15:34:15Z",
+  "graph": {
+    "path": "graph-f64f602807eddbe1.bin",
+    "graph_id": "f64f602807eddbe1",
+    "bytes": 660763,
+    "raw_bytes": 1309966,
+    "sha256": "bfa72b5c01a7a705bbc3aaa6f5e3520e161e4af2cc37186ac121f5da2b90f5a6"
+  },
+  "risk": {
+    "path": "risk-2026-10-19-0ae96ce2c42d.bin",
+    "week_start": "2026-10-19",
+    "valid_until": "2026-10-26",
+    "bytes": 530420,
+    "raw_bytes": 1226412,
+    "sha256": "0ae96ce2c42d4399c8a97637ca979973fef6d153e47f9eba2800bf1d0044cb6e"
+  },
+  "model": {
+    "name": "lightgbm-poisson+stnet",
+    "version": "2026.43",
+    "trained_through": "2026-10-04",
+    "features": "base+harm+ctx+s311+lic+cta+events",
+    "rounds": 736
+  }
+}
