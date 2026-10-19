@@ -33,6 +33,10 @@ final class AppModel: ObservableObject {
     @Published private(set) var data: CityData?
     @Published private(set) var appTooOld = false
     @Published private(set) var checkingForUpdate = false
+    /// Result of the last "Check for update" tap, shown under the button in Settings.
+    @Published var updateCheckMessage: String?
+    /// The online map style couldn't load (offline); routes are drawn on a plain background.
+    @Published var mapOffline = false
 
     @Published var screen: Screen = .map
     @Published var start: Place? { didSet { if start != oldValue { recompute() } } }
@@ -85,30 +89,46 @@ final class AppModel: ObservableObject {
             let d = try await Task.detached(priority: .userInitiated) { try await DataStore.shared.loadCurrent() }.value
             data = d
             loadState = .ready
-            clock = Timer.publish(every: 30, on: .main, in: .common).autoconnect().sink { [weak self] _ in self?.refreshSlot() }
-            refreshSlot()
-            location.start()
+            startClockAndLocation()
         } catch {
             loadState = .failed(error.localizedDescription)
         }
         await checkForUpdate(force: false)
     }
 
+    private func startClockAndLocation() {
+        clock = Timer.publish(every: 30, on: .main, in: .common).autoconnect().sink { [weak self] _ in self?.refreshSlot() }
+        refreshSlot()
+        location.start()
+    }
+
     /// On launch and on return to the foreground (rate-limited inside the store).
     func checkForUpdate(force: Bool) async {
         checkingForUpdate = true
+        if force { updateCheckMessage = nil }
         defer { checkingForUpdate = false }
-        switch await DataStore.shared.checkForUpdate(force: force) {
+        let outcome = await DataStore.shared.checkForUpdate(force: force)
+        switch outcome {
         case .updated:
             let reload = Task.detached(priority: .utility) { try await DataStore.shared.loadCurrent() }
             if let d = try? await reload.value {
+                let first = data == nil
                 data = d
                 loadState = .ready
+                if first { startClockAndLocation() }
                 recompute()
             }
         case .appTooOld: appTooOld = true
         case .upToDate, .failed: break
         }
+        guard force else { return }
+        switch outcome {
+        case .updated: updateCheckMessage = L10n.s("update_done")
+        case .upToDate: updateCheckMessage = L10n.s("update_latest")
+        case .failed: updateCheckMessage = L10n.s("update_failed")
+        case .appTooOld: updateCheckMessage = nil      // Settings already shows "Update the app"
+        }
+        if let m = updateCheckMessage { UIAccessibility.post(notification: .announcement, argument: m) }
     }
 
     var lastUpdated: Date? { UserDefaults.standard.object(forKey: "data.lastUpdated") as? Date }

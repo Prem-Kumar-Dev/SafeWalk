@@ -1,5 +1,6 @@
 import CoreLocation
 import MapLibre
+import Network
 import SwiftUI
 import UIKit
 
@@ -42,6 +43,7 @@ struct SafeWalkMapView: UIViewRepresentable {
         if c.dark != dark {
             c.dark = dark
             c.styleLoaded = false
+            c.usingOfflineStyle = false
             map.styleURL = DataStore.styleURL(dark: dark)
         }
         c.sync()
@@ -53,6 +55,9 @@ struct SafeWalkMapView: UIViewRepresentable {
         weak var map: MLNMapView?
         var dark = false
         var styleLoaded = false
+        /// Showing the plain offline style because the online one failed; retried when a network appears.
+        var usingOfflineStyle = false
+        private let network = NWPathMonitor()
 
         private var routeSource: MLNShapeSource?
         private var shownRoutesKey = ""
@@ -62,7 +67,43 @@ struct SafeWalkMapView: UIViewRepresentable {
         private var pins: [MLNPointAnnotation] = []
         private var trackingWalk = false
 
-        init(model: AppModel) { self.model = model }
+        init(model: AppModel) {
+            self.model = model
+            super.init()
+            network.pathUpdateHandler = { [weak self] path in
+                guard path.status == .satisfied else { return }
+                Task { @MainActor in self?.retryOnlineStyle() }
+            }
+            network.start(queue: .global(qos: .utility))
+        }
+
+        deinit { network.cancel() }
+
+        // MARK: Offline
+
+        /// Offline with no cached style: draw the routes on a plain background so they still show.
+        func mapViewDidFailLoadingMap(_ mapView: MLNMapView, withError error: Error) {
+            guard !usingOfflineStyle, let url = Self.offlineStyleURL(dark: dark) else { return }
+            usingOfflineStyle = true
+            styleLoaded = false
+            model.mapOffline = true
+            mapView.styleURL = url
+        }
+
+        private func retryOnlineStyle() {
+            guard usingOfflineStyle, let map else { return }
+            usingOfflineStyle = false
+            styleLoaded = false
+            map.styleURL = DataStore.styleURL(dark: dark)
+        }
+
+        private static func offlineStyleURL(dark: Bool) -> URL? {
+            let paper = dark ? "#211A1B" : "#F2EBEA"
+            let json = #"{"version":8,"name":"SafeWalk offline","sources":{},"layers":[{"id":"paper","type":"background","paint":{"background-color":"\#(paper)"}}]}"#
+            let url = FileManager.default.temporaryDirectory.appendingPathComponent("safewalk-offline-\(dark ? "dark" : "light").json")
+            do { try Data(json.utf8).write(to: url, options: .atomic) } catch { return nil }
+            return url
+        }
 
         func mapView(_ mapView: MLNMapView, didFinishLoading style: MLNStyle) {
             let src = MLNShapeSource(identifier: "routes", shape: nil, options: nil)
@@ -100,6 +141,7 @@ struct SafeWalkMapView: UIViewRepresentable {
             }
             routeSource = src
             styleLoaded = true
+            if !usingOfflineStyle { model.mapOffline = false }
             shownRoutesKey = ""
             sync()
         }

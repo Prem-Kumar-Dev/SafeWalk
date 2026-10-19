@@ -4,6 +4,8 @@ import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.ExperimentalLayoutApi
+import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.fillMaxHeight
@@ -12,6 +14,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBars
@@ -52,6 +55,8 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.selected
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import app.safewalk.android.R
@@ -119,27 +124,29 @@ private fun EndpointField(label: String, value: String?, end: Boolean, onClick: 
                 Modifier.size(10.dp).background(if (end) MaterialTheme.colorScheme.onSurface else coral, if (end) RoundedCornerShape(2.dp) else CircleShape)
             )
             Spacer(Modifier.width(12.dp))
-            Text(value ?: label, maxLines = 1, style = MaterialTheme.typography.bodyLarge,
+            Text(value ?: label, maxLines = 1, overflow = TextOverflow.Ellipsis, style = MaterialTheme.typography.bodyLarge,
                 color = if (value == null) MaterialTheme.colorScheme.onSurfaceVariant else MaterialTheme.colorScheme.onSurface)
         }
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class)
 @Composable
 private fun LeavingRow(s: UiState, vm: SafeWalkViewModel) {
     var picking by remember { mutableStateOf(false) }
     val zone = (s.data as? DataState.Ready)?.data?.zone
-    Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+    // wraps onto a second line at large font sizes instead of squashing the chips
+    FlowRow(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp),
+        verticalArrangement = Arrangement.spacedBy(6.dp)) {
         Text(stringResource(R.string.leaving), style = MaterialTheme.typography.labelMedium,
-            color = MaterialTheme.colorScheme.onSurfaceVariant)
+            color = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.align(Alignment.CenterVertically))
         PillChip(stringResource(R.string.leaving_now), selected = s.departure == null) { vm.setDeparture(null) }
         val label = s.departure?.let { it.format(DateTimeFormatter.ofLocalizedTime(FormatStyle.SHORT)) }
             ?: stringResource(R.string.pick_time)
         PillChip(label, selected = s.departure != null) { picking = true }
-        Spacer(Modifier.weight(1f))
         Text(stringResource(R.string.route_preference), style = MaterialTheme.typography.labelMedium,
-            color = MaterialTheme.colorScheme.onSurfaceVariant)
+            color = MaterialTheme.colorScheme.onSurfaceVariant, textAlign = TextAlign.End,
+            modifier = Modifier.weight(1f).align(Alignment.CenterVertically))
     }
     if (picking && zone != null) {
         val now = ZonedDateTime.now(zone)
@@ -174,10 +181,10 @@ fun LevelPicker(level: SafetyLevel, onPick: (SafetyLevel) -> Unit) {
                 selected = on, onClick = { onPick(l) }, shape = RoundedCornerShape(10.dp),
                 color = if (on) MaterialTheme.colorScheme.surface else Color.Transparent,
                 shadowElevation = if (on) 2.dp else 0.dp,
-                modifier = Modifier.weight(1f).height(38.dp),
+                modifier = Modifier.weight(1f).heightIn(min = 38.dp),
             ) {
-                Box(contentAlignment = Alignment.Center) {
-                    Text(levelLabel(l), maxLines = 1, style = MaterialTheme.typography.labelMedium,
+                Box(contentAlignment = Alignment.Center, modifier = Modifier.padding(horizontal = 4.dp, vertical = 6.dp)) {
+                    Text(levelLabel(l), textAlign = TextAlign.Center, style = MaterialTheme.typography.labelMedium,
                         color = if (on) MaterialTheme.colorScheme.onSurface else MaterialTheme.colorScheme.onSurfaceVariant)
                 }
             }

@@ -40,6 +40,8 @@
     <string name="forecast_age">Forecast from the week of %1$s.</string>
     <string name="forecast_stale">This forecast is out of date. Connect to the internet to update.</string>
     <string name="outside_coverage">SafeWalk covers Chicago only for now.</string>
+    <string name="map_offline">You\'re offline, so the street map can\'t load. Routes still work.</string>
+    <string name="no_dialer">This device can\'t make phone calls. Dial 911 from a phone.</string>
     <string name="too_far_from_street">Move the pin closer to a street.</string>
     <string name="already_there">You\'re already there.</string>
     <string name="off_route_prompt">You\'re off the route. Find a new route from here?</string>
@@ -121,6 +123,9 @@
     </plurals>
     <string name="check_update">Check for update</string>
     <string name="checking">Checking…</string>
+    <string name="update_done">Downloaded the new forecast.</string>
+    <string name="update_latest">You have the latest forecast.</string>
+    <string name="update_failed">Couldn\'t reach the forecast server. Your saved forecast still works.</string>
     <string name="about">About and how it works</string>
     <string name="privacy">Privacy</string>
     <string name="disclaimer">Disclaimer</string>

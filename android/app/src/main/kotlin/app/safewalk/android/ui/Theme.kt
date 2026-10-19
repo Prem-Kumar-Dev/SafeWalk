@@ -45,7 +45,8 @@ data class SafeWalkColors(
 )
 
 private val LightExtra = SafeWalkColors(
-    accent = Color(0xFFE25C5C), blush = Color(0xFFFFE3E1), blushSoft = Color(0xFFFFF4F3),
+    // #B5403D, not the lighter #E25C5C: it is used for small text, which needs 4.5:1 on white and on blush
+    accent = Color(0xFFB5403D), blush = Color(0xFFFFE3E1), blushSoft = Color(0xFFFFF4F3),
     sand = Color(0xFFF2EBEA), banner = Ink, onBanner = Color.White, onBannerMuted = Color(0xFFD9CFD1),
     emergency = Color(0xFFD7263D), amber = Color(0xFFF2A93B), riskHigh = Color(0xFFC2410C),
     success = Color(0xFF2F9E62), routeOther = Color(0xFFA39C9E),

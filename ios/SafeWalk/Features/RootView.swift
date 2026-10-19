@@ -63,8 +63,8 @@ struct MapHomeView: View {
                         Text(L10n.searchHint).font(.swBody).foregroundStyle(SW.ink2)
                         Spacer()
                     }
-                    .padding(.horizontal, 16)
-                    .frame(height: 52)
+                    .padding(.horizontal, 16).padding(.vertical, 12)
+                    .frame(minHeight: 52)
                     .background(SW.card, in: RoundedRectangle(cornerRadius: 16, style: .continuous))
                     .shadow(color: .black.opacity(0.12), radius: 10, y: 3)
                 }
@@ -88,6 +88,12 @@ struct MapHomeView: View {
             }
             if model.appTooOld {
                 Notice(text: L10n.updateApp, icon: "arrow.down.app")
+            }
+            if model.mapOffline {
+                Notice(text: L10n.s("map_offline"), icon: "wifi.slash")
+            }
+            if case .failed(let why) = model.loadState {
+                Notice(text: L10n.f("data_failed", why), icon: "exclamationmark.triangle")
             }
             if let m = model.routeMessage {
                 Notice(text: m, icon: "info.circle")
@@ -116,7 +122,7 @@ struct MapHomeView: View {
             }
         }
         .sheet(isPresented: $searching) { SearchView(model: model, purpose: .destination) }
-        .sheet(isPresented: $showSettings) { SettingsView(model: model) }
+        .sheet(isPresented: $showSettings, onDismiss: { model.updateCheckMessage = nil }) { SettingsView(model: model) }
     }
 }
 

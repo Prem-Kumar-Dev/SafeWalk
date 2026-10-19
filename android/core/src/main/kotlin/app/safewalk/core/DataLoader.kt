@@ -22,6 +22,7 @@ object DataLoader {
     fun checkManifest(m: Manifest) {
         if (m.minAppFormat > SafeWalkFormat.FORMAT_VERSION) throw AppTooOldException()
         if (m.formatVersion != SafeWalkFormat.FORMAT_VERSION) throw DataCheckException("format ${m.formatVersion}")
+        if (m.bbox.size != 4) throw DataCheckException("bbox")
     }
 
     fun decodeGraph(m: Manifest, blob: ByteArray): StreetGraph {

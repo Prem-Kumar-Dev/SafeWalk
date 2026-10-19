@@ -112,6 +112,7 @@ enum Geometry {
 
     /// Point a fraction of the way along a polyline (reference `point_at`).
     static func point(along pts: [CLLocationCoordinate2D], frac: Double) -> CLLocationCoordinate2D {
+        guard pts.count >= 2 else { return pts.first ?? CLLocationCoordinate2D() }
         let kx = SafeWalkFormat.metresPerDegLon(atLat: pts[0].latitude), ky = SafeWalkFormat.metresPerDegLat
         var seg: [Double] = []
         for i in 0..<(pts.count - 1) {
@@ -133,6 +134,7 @@ enum Geometry {
 
     /// The part of a polyline between two fractions, in the direction from → to.
     static func subPolyline(_ pts: [CLLocationCoordinate2D], from f0: Double, to f1: Double) -> [CLLocationCoordinate2D] {
+        guard pts.count >= 2 else { return pts }
         let lo = min(f0, f1), hi = max(f0, f1)
         let kx = SafeWalkFormat.metresPerDegLon(atLat: pts[0].latitude), ky = SafeWalkFormat.metresPerDegLat
         var cum = [0.0]

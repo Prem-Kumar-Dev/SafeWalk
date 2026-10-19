@@ -11,6 +11,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -41,6 +42,7 @@ import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -50,12 +52,14 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import app.safewalk.android.R
 import app.safewalk.android.data.DataState
 import app.safewalk.android.data.Units
+import app.safewalk.android.data.UpdateResult
 import app.safewalk.core.SafetyLevel
 import java.util.concurrent.TimeUnit
 
@@ -172,12 +176,25 @@ fun SettingsScreen(s: UiState, vm: SafeWalkViewModel) {
                     onClick = vm::checkForUpdateNow, enabled = !s.checkingUpdate,
                     border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant),
                     colors = ButtonDefaults.outlinedButtonColors(containerColor = MaterialTheme.colorScheme.surface, contentColor = c.accent),
-                    modifier = Modifier.fillMaxWidth().height(48.dp),
+                    modifier = Modifier.fillMaxWidth().heightIn(min = 48.dp),
                 ) {
                     Icon(Icons.Default.Refresh, contentDescription = null, modifier = Modifier.size(20.dp))
                     Spacer(Modifier.width(8.dp))
                     Text(stringResource(if (s.checkingUpdate) R.string.checking else R.string.check_update),
                         style = MaterialTheme.typography.labelLarge)
+                }
+                val result = when (s.updateResult) {
+                    UpdateResult.UPDATED -> R.string.update_done
+                    UpdateResult.UP_TO_DATE -> R.string.update_latest
+                    UpdateResult.FAILED -> R.string.update_failed
+                    UpdateResult.APP_TOO_OLD, null -> null
+                }
+                if (result != null) {
+                    val text = stringResource(result)
+                    val view = LocalView.current
+                    LaunchedEffect(text) { view.announceForAccessibility(text) }
+                    Text(text, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        modifier = Modifier.padding(top = 8.dp))
                 }
             }
         }

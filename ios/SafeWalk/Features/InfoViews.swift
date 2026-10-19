@@ -53,6 +53,9 @@ struct SettingsView: View {
                         }
                         .buttonStyle(.plain)
                         .disabled(model.checkingForUpdate)
+                        if let m = model.updateCheckMessage {
+                            Text(m).font(.swCaption).foregroundStyle(SW.ink2)
+                        }
                     }
                     .padding(.vertical, 6)
                 }

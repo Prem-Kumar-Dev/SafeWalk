@@ -113,7 +113,7 @@ struct OnboardingView: View {
             Text(L10n.s("location_title")).font(.jakarta(26, .bold, relativeTo: .title)).foregroundStyle(SW.ink)
             Text(L10n.s("location_body")).font(.swBody).foregroundStyle(SW.ink2).padding(.top, 10)
             Label(L10n.s("location_private"), systemImage: "lock")
-                .font(.swCaption).foregroundStyle(SW.ink3)
+                .font(.swCaption).foregroundStyle(SW.ink2)
                 .padding(.top, 40).padding(.bottom, 12)
             VStack(spacing: 12) {
                 Button(L10n.s("location_allow")) {

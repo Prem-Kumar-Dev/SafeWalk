@@ -28,6 +28,8 @@ actor DataStore {
         let c = URLSessionConfiguration.default
         c.requestCachePolicy = .reloadIgnoringLocalCacheData
         c.timeoutIntervalForRequest = 30
+        // a slow connection gives up on the whole download and keeps the saved forecast
+        c.timeoutIntervalForResource = 90
         return URLSession(configuration: c)
     }()
 
@@ -54,6 +56,7 @@ actor DataStore {
         let mdata = try Data(contentsOf: folder.appendingPathComponent("manifest.json"))
         let m = try JSONDecoder().decode(Manifest.self, from: mdata)
         guard m.format_version == SafeWalkFormat.version else { throw DataError.appTooOld }
+        guard m.bbox.count == 4 else { throw DataError.malformed("bbox") }
         let graphRaw = try inflate(Data(contentsOf: folder.appendingPathComponent(m.graph.path)), expected: m.graph.raw_bytes)
         let graph = try StreetGraph(raw: graphRaw, graphID: graphID(of: graphRaw))
         let risk = try? RiskTable(raw: inflate(Data(contentsOf: folder.appendingPathComponent(m.risk.path)),
@@ -95,6 +98,7 @@ actor DataStore {
         guard http.statusCode == 200 else { throw DataError.download("manifest HTTP \(http.statusCode)") }
         let m = try JSONDecoder().decode(Manifest.self, from: mdata)
         if m.min_app_format > SafeWalkFormat.version { throw DataError.appTooOld }
+        guard m.bbox.count == 4 else { throw DataError.malformed("bbox") }
 
         let cached = try? JSONDecoder().decode(Manifest.self, from: Data(contentsOf: current.appendingPathComponent("manifest.json")))
         if cached == m { saveETag(http, key: etagKey); return .upToDate }
