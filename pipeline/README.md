@@ -70,8 +70,10 @@ The test is the original one: 250 random 1 to 4 km walks, with the risk map buil
   2. Keep `pipeline/` and `.github/workflows/weekly.yml` where they are.
   3. Turn on Pages (Settings → Pages → Deploy from branch `main`, root).
   4. Optionally add a free Socrata app token as the secret `SOCRATA_APP_TOKEN`.
-- **What a run does:** every Monday at 09:00 UTC it downloads the new data, retrains, validates and commits `v1/chicago/`. It fails instead of publishing if validation fails. Risk files stay published for 8 weeks.
-- **Run time:** about 50 minutes on 4 cores here (LightGBM and the neural net together). The job allows 5 hours.
+- **What a run does:** every Monday at 09:00 UTC it downloads the new data, runs the quality check below, retrains, validates and commits `v1/chicago/`. It fails instead of publishing if the quality check or validation fails, and the app keeps last week's forecast. Risk files stay published for 8 weeks.
+- **Quality check:** the same recipe is trained as if it were 8 weeks ago and scored on the 8 weeks since, next to the tuned 5-year KDE. If its AUC is below the KDE's, nothing is published. The table lands in the run's summary page and in `pipeline/out/gate.json`. The weeks and margin are `gate` in `model_config.json`; a manual run with **skip_gate** publishes anyway.
+- **Alerts:** a failed run opens an issue labelled `weekly-retrain-failed`, assigned to the repository owner, with the log link and the quality-check table. GitHub emails the assignee. Further failures comment on the same issue, and the next good run closes it.
+- **Run time:** about 50 minutes on 4 cores here for the forecast, plus about as much again for the quality check. The job allows 5 hours.
 
 ## Limits
 
