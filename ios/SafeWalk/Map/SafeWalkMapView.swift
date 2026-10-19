@@ -6,7 +6,7 @@ import UIKit
 enum MapColors {
     static let brand = UIColor(hex: 0xFF8A8A)       // coral: the chosen route
     static let amber = UIColor(hex: 0xF2A93B)       // elevated-risk stretches
-    static let deepOrange = UIColor(hex: 0xD9541E)  // higher-risk stretches
+    static let deepOrange = UIColor(hex: 0xC2410C)  // higher-risk stretches
     static let grey = UIColor(hex: 0xA39C9E)        // the route not chosen
     static let ink = UIColor(hex: 0x231C1E)
     static let pin = UIColor(hex: 0xE25C5C)

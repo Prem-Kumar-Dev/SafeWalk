@@ -37,8 +37,10 @@ enum SW {
     /// Applies the coral look to the UIKit pieces SwiftUI draws with (segmented controls, nav bars).
     static func configureAppearance() {
         let seg = UISegmentedControl.appearance()
-        seg.selectedSegmentTintColor = UIColor(hex: 0xFF8A8A)
-        seg.setTitleTextAttributes([.foregroundColor: UIColor(hex: 0x3B1517), .font: uiFont(.semibold, 14)], for: .selected)
+        // sand track, the chosen segment raised in white (card colour in dark mode)
+        seg.backgroundColor = UIColor.dynamic(0xF2EBEA, 0x342B2C)
+        seg.selectedSegmentTintColor = UIColor.dynamic(0xFFFFFF, 0x211A1B)
+        seg.setTitleTextAttributes([.foregroundColor: UIColor.dynamic(0x231C1E, 0xF3ECEA), .font: uiFont(.semibold, 14)], for: .selected)
         seg.setTitleTextAttributes([.foregroundColor: UIColor.dynamic(0x6E6366, 0xB8ADAF), .font: uiFont(.medium, 14)], for: .normal)
 
         let nav = UINavigationBar.appearance()
@@ -149,17 +151,20 @@ struct DarkBanner: View {
     let symbol: String
     let badge: Color
     let badgeInk: Color
+    /// 22 gives a circle; the turn badge uses a rounded square.
+    var badgeRadius: CGFloat = 22
+    var titleFont: Font = .swHeadline
 
     var body: some View {
         HStack(spacing: 14) {
             Image(systemName: symbol)
                 .font(.system(size: 20, weight: .bold))
                 .foregroundStyle(badgeInk)
-                .frame(width: 40, height: 40)
-                .background(badge, in: Circle())
+                .frame(width: 44, height: 44)
+                .background(badge, in: RoundedRectangle(cornerRadius: badgeRadius, style: .continuous))
                 .accessibilityHidden(true)
             VStack(alignment: .leading, spacing: 2) {
-                Text(title).font(.swHeadline).foregroundStyle(.white)
+                Text(title).font(titleFont).foregroundStyle(.white)
                 if let subtitle { Text(subtitle).font(.swCaption).foregroundStyle(SW.bannerMuted) }
             }
             Spacer(minLength: 0)

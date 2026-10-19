@@ -34,8 +34,10 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -109,6 +111,7 @@ fun BottomSheetCard(modifier: Modifier = Modifier, content: @Composable ColumnSc
 @Composable
 fun DarkBanner(
     title: String, subtitle: String?, badgeColor: Color, modifier: Modifier = Modifier,
+    badgeShape: Shape = CircleShape, titleStyle: TextStyle = MaterialTheme.typography.titleMedium,
     badge: @Composable () -> Unit,
 ) {
     val c = SafeWalkTheme.colors
@@ -118,10 +121,10 @@ fun DarkBanner(
             .fillMaxWidth(),
     ) {
         Row(Modifier.padding(horizontal = 12.dp, vertical = 12.dp), verticalAlignment = Alignment.CenterVertically) {
-            Box(Modifier.size(40.dp).background(badgeColor, CircleShape), contentAlignment = Alignment.Center) { badge() }
+            Box(Modifier.size(44.dp).background(badgeColor, badgeShape), contentAlignment = Alignment.Center) { badge() }
             Spacer(Modifier.width(14.dp))
             Column(verticalArrangement = Arrangement.spacedBy(2.dp)) {
-                Text(title, style = MaterialTheme.typography.titleMedium, color = c.onBanner)
+                Text(title, style = titleStyle, color = c.onBanner)
                 if (subtitle != null) Text(subtitle, style = MaterialTheme.typography.bodySmall, color = c.onBannerMuted)
             }
         }

@@ -47,23 +47,39 @@ struct WalkingView: View {
                        symbol: "exclamationmark.triangle.fill", badge: SW.amber, badgeInk: Color(UIColor(hex: 0x231C1E)))
                 .padding(.horizontal)
         } else if let step = session.nextStep ?? session.route.steps[safe: session.stepIndex] {
-            DarkBanner(title: L10n.instruction(step),
-                       subtitle: session.metresToNextStep.map { model.units.format($0) },
-                       symbol: icon(step.maneuver), badge: SW.coral, badgeInk: SW.coralInk)
-                .padding(.horizontal)
+            // distance to the turn leads; the instruction sits under it
+            if let m = session.metresToNextStep {
+                DarkBanner(title: model.units.format(m), subtitle: L10n.instruction(step),
+                           symbol: icon(step.maneuver), badge: SW.coral, badgeInk: SW.coralInk,
+                           badgeRadius: 14, titleFont: .jakarta(24, .bold, relativeTo: .title2))
+                    .padding(.horizontal)
+            } else {
+                DarkBanner(title: L10n.instruction(step), subtitle: nil,
+                           symbol: icon(step.maneuver), badge: SW.coral, badgeInk: SW.coralInk, badgeRadius: 14)
+                    .padding(.horizontal)
+            }
         }
     }
 
     // MARK: Bottom
 
     private var walkingSheet: some View {
-        VStack(alignment: .leading, spacing: 4) {
-            Text(L10n.f("walk_left_to_go", model.units.format(session.remainingMetres), session.remainingMinutes))
-                .font(.swTitle.monospacedDigit()).foregroundStyle(SW.ink)
-            Text(L10n.s("route_fine_print")).font(.swCaption).foregroundStyle(SW.ink2)
+        let lower = model.choice == .lowerRisk && model.comparison?.lowerRisk != nil
+        let arrive = Date().addingTimeInterval(Double(session.remainingMinutes) * 60).formatted(date: .omitted, time: .shortened)
+        return VStack(alignment: .leading, spacing: 4) {
+            HStack {
+                Text(L10n.f("walk_left_to_go", model.units.format(session.remainingMetres), session.remainingMinutes))
+                    .font(.swTitle.monospacedDigit()).foregroundStyle(SW.ink)
+                Spacer()
+                Text(model.preference.label).font(.jakarta(11, .semibold)).foregroundStyle(SW.accent)
+                    .padding(.horizontal, 10).padding(.vertical, 4).background(SW.blush, in: Capsule())
+            }
+            Text(L10n.f("walk_arrive_at", L10n.s(lower ? "route_lower_risk_title" : "route_direct_title"), arrive))
+                .font(.swCaption).foregroundStyle(SW.ink2)
+            Text(L10n.s("route_fine_print")).font(.swCaption).foregroundStyle(SW.ink3)
             HStack(spacing: 12) {
-                Call911Button()
-                Button(L10n.s("end")) { model.endWalking() }.buttonStyle(QuietButtonStyle())
+                Call911Button().layoutPriority(1)
+                Button(L10n.s("end")) { model.endWalking() }.buttonStyle(QuietButtonStyle()).frame(width: 110)
             }
             .padding(.top, 16)
         }

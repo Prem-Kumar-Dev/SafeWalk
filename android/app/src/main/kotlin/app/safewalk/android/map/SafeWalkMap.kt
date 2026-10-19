@@ -192,8 +192,8 @@ private fun addRouteLayers(s: Style, dark: Boolean) {
     val bandColor = Expression.match(
         Expression.get("band"), Expression.color(Color.parseColor("#FF8A8A")),
         Expression.stop("ELEVATED", Expression.color(Color.parseColor("#F2A93B"))),
-        Expression.stop("HIGH", Expression.color(Color.parseColor("#D9541E"))),
-        Expression.stop("VERY_HIGH", Expression.color(Color.parseColor("#D9541E"))),
+        Expression.stop("HIGH", Expression.color(Color.parseColor("#C2410C"))),
+        Expression.stop("VERY_HIGH", Expression.color(Color.parseColor("#C2410C"))),
     )
     val isHigh = Expression.any(Expression.eq(Expression.get("band"), "HIGH"), Expression.eq(Expression.get("band"), "VERY_HIGH"))
     // solid for normal / elevated; higher-risk stretches dashed so colour is not the only signal

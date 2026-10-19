@@ -219,6 +219,12 @@ class SafeWalkViewModel(app: Application) : AndroidViewModel(app) {
         }
     }
 
+    /** A recent place tapped on the map home sheet: walk there. */
+    fun walkTo(p: Place) {
+        _ui.update { it.copy(searchFor = Field.END) }
+        choosePlace(p)
+    }
+
     fun choosePlace(p: Place) {
         prefs.addRecent(p)
         _ui.update { it.copy(recent = prefs.recentPlaces) }
