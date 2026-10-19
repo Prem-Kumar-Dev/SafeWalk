@@ -123,6 +123,13 @@ struct RoutePreviewView: View {
 
     @ViewBuilder
     private func cards(_ c: RouteComparison) -> some View {
+        // Why this route is shown, in one sentence from the router.
+        Label(c.explanation.text, systemImage: "info.circle")
+            .font(.jakarta(14, .medium))
+            .foregroundStyle(SW.ink)
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .padding(.horizontal, 14).padding(.vertical, 12)
+            .background(SW.blush, in: RoundedRectangle(cornerRadius: 16, style: .continuous))
         if let lower = c.lowerRisk {
             RouteCard(title: L10n.s("route_lower_risk_title"), route: lower, units: model.units,
                       detail: "\(L10n.riskCut(c.riskCutPercent)) · \(L10n.extraTime(c.extraMinutes))",
@@ -133,9 +140,6 @@ struct RoutePreviewView: View {
         } else {
             RouteCard(title: L10n.s("route_direct_title"), route: c.direct, units: model.units, detail: nil,
                       emphasiseDetail: false, selected: true) { model.choice = .direct }
-            if c.preference != .direct && model.data?.risk != nil {
-                Text(L10n.s("route_direct_is_best")).font(.swBody).foregroundStyle(SW.ink)
-            }
         }
         if c.longWalk { Text(L10n.s("route_long_walk")).font(.swBody).foregroundStyle(SW.ink) }
     }

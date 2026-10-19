@@ -24,6 +24,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.automirrored.filled.DirectionsWalk
 import androidx.compose.material.icons.filled.SwapVert
+import androidx.compose.material.icons.outlined.Info
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
@@ -196,6 +197,7 @@ fun levelLabel(l: SafetyLevel) = stringResource(
 @Composable
 private fun RouteCards(s: UiState, t: TripResult.Routes, vm: SafeWalkViewModel) {
     val safer = t.safer
+    Explanation(t.explanation.text)
     if (safer != null) {
         RouteCard(
             title = stringResource(R.string.route_lower_risk_title), r = s, d = safer,
@@ -216,7 +218,6 @@ private fun RouteCards(s: UiState, t: TripResult.Routes, vm: SafeWalkViewModel) 
         stretches = t.direct.higherRiskStretches,
         selected = safer == null || s.choice == RouteChoice.DIRECT,
     ) { vm.choose(RouteChoice.DIRECT) }
-    if (t.directIsLowerRisk) Message(stringResource(R.string.route_direct_is_best))
     if (!t.forecastAvailable) Message(stringResource(R.string.no_forecast))
     if (t.longWalk) Message(stringResource(R.string.long_walk))
 
@@ -274,6 +275,18 @@ private fun RouteCard(
                         color = MaterialTheme.colorScheme.onSurfaceVariant)
                 }
             }
+        }
+    }
+}
+
+/** Why this route is shown, in one sentence from the router (e.g. "Avoids 1 higher-risk block on W Adams St, 6% longer."). */
+@Composable
+private fun Explanation(text: String) {
+    Surface(color = SafeWalkTheme.colors.blush, shape = MaterialTheme.shapes.medium, modifier = Modifier.fillMaxWidth()) {
+        Row(Modifier.padding(horizontal = 14.dp, vertical = 12.dp), verticalAlignment = Alignment.CenterVertically) {
+            Icon(Icons.Outlined.Info, contentDescription = null, tint = SafeWalkTheme.colors.accent, modifier = Modifier.size(20.dp))
+            Spacer(Modifier.width(10.dp))
+            Text(text, style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurface)
         }
     }
 }
