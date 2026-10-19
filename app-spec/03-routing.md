@@ -76,6 +76,23 @@ Rules for what to show:
 - If the safer route is more than 25% longer than direct, still show it, and show the extra minutes prominently so the user can decide.
 - Never show raw risk numbers, "× city average", or the thresholds.
 
+### Route explanation
+
+One plain sentence saying why the route is shown, filled from the numbers above (templates only, no AI). Both apps build it in their routing core (`RouteExplanation` in `android/core` and `ios/SafeWalk/Core`) and must produce identical text.
+
+- **Higher-risk blocks avoided**: the direct route's higher-risk stretches whose edge the safer route does not use.
+- **Street**: the named street holding more than half of those blocks; "on X" if it holds all of them, ", mostly on X" otherwise, nothing if no street has more than half.
+- **Longer**: `round((length(safer) / length(direct) − 1) × 100)`; 0 reads "about the same distance".
+
+| Case | Sentence |
+|---|---|
+| Safer route shown, blocks avoided | "Avoids 3 higher-risk blocks on S State St, 4% longer." |
+| Safer route shown, no high blocks avoided | "Takes lower-risk streets for 23% lower predicted risk, 6% longer." |
+| Safer level asked, direct is already lower-risk | "The direct route is already the lower-risk choice at this time." |
+| Level Direct, blocks on the route | "Shortest route; passes 2 higher-risk blocks on W Madison St." |
+| Level Direct, none | "Shortest route, with no higher-risk blocks at this time." |
+| No forecast loaded | "Shortest route. No risk forecast is loaded, so streets aren't compared." |
+
 ## 5. Route line colours
 
 Draw the chosen route as one line, coloured per piece by the same slot's thresholds: below `elevated` normal route colour, `elevated` to `high` amber, `high` and above deep orange. The direct route is drawn under it in grey when both are shown. Nothing outside the user's own routes is ever coloured by risk.

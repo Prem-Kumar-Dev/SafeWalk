@@ -55,6 +55,8 @@ struct RouteResult: Sendable {
     /// Σ piece length × relative risk. Only used to compare two routes.
     let exposure: Double
     let higherRiskStretches: Int
+    /// The pieces counted in `higherRiskStretches`, in walking order.
+    let higherRiskBlocks: [HigherRiskBlock]
     let polyline: [CLLocationCoordinate2D]
     let segments: [RouteSegment]
     let steps: [TurnStep]
@@ -71,6 +73,8 @@ struct RouteComparison: Sendable {
     let preference: RoutePreference
     let slot: TimeSlot
     let longWalk: Bool
+    /// One plain-language sentence on why this route is shown, e.g. "Avoids 3 higher-risk blocks on S State St, 4% longer."
+    let explanation: RouteExplanation
 
     /// Whole-percent risk reduction of the lower-risk route vs Direct.
     var riskCutPercent: Int {
@@ -123,8 +127,19 @@ struct Router: Sendable {
            direct.exposure > 0, 1 - r.exposure / direct.exposure >= Self.minShowReduction {
             lower = r
         }
+        let explanation: RouteExplanation
+        if data.risk == nil {
+            explanation = RouteExplanation(kind: .noForecast)
+        } else if let lower {
+            let cut = Int(((1 - lower.exposure / direct.exposure) * 100).rounded())
+            explanation = .lowerRisk(direct: direct, lower: lower, riskCutPercent: cut)
+        } else if preference != .direct {
+            explanation = RouteExplanation(kind: .directIsLowerRisk)
+        } else {
+            explanation = .direct(direct)
+        }
         return .success(RouteComparison(direct: direct, lowerRisk: lower, preference: preference, slot: slot,
-                                        longWalk: direct.lengthMetres > Self.longWalkMetres))
+                                        longWalk: direct.lengthMetres > Self.longWalkMetres, explanation: explanation))
     }
 
     func route(from a: SnapPoint, to b: SnapPoint, slot: Int, lambda: Double) -> RouteResult? {
@@ -196,7 +211,8 @@ struct Router: Sendable {
 
     private func summarize(_ pieces: [RoutePiece], cost: Double, slot: Int) -> RouteResult {
         let g = graph
-        var length = 0.0, exposure = 0.0, stretches = 0
+        var length = 0.0, exposure = 0.0
+        var blocks: [HigherRiskBlock] = []
         var polyline: [CLLocationCoordinate2D] = []
         var segments: [RouteSegment] = []
         var stepsRaw: [(name: String, length: Double, pts: [CLLocationCoordinate2D])] = []
@@ -207,7 +223,9 @@ struct Router: Sendable {
             length += pl
             exposure += pl * r
             let band = data.risk?.band(edge: p.edge, slot: slot) ?? 0
-            if band == 2 && pl >= Self.stretchMinMetres { stretches += 1 }
+            if band == 2 && pl >= Self.stretchMinMetres {
+                blocks.append(HigherRiskBlock(edge: p.edge, street: g.streetName(edge: p.edge), metres: pl))
+            }
 
             let sub = Geometry.subPolyline(g.points(edge: p.edge), from: p.fromFrac, to: p.toFrac)
             for c in sub where polyline.last.map({ $0.latitude != c.latitude || $0.longitude != c.longitude }) ?? true {
@@ -245,7 +263,7 @@ struct Router: Sendable {
         }
 
         return RouteResult(pieces: pieces, lengthMetres: length, cost: cost, exposure: exposure,
-                           higherRiskStretches: stretches, polyline: polyline, segments: segments, steps: steps)
+                           higherRiskStretches: blocks.count, higherRiskBlocks: blocks, polyline: polyline, segments: segments, steps: steps)
     }
 
     private static func firstBearing(_ pts: [CLLocationCoordinate2D]) -> Double? {
