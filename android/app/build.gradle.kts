@@ -10,7 +10,7 @@ android {
     compileSdk = 35
 
     defaultConfig {
-        applicationId = "app.safewalk"
+        applicationId = "com.prem.safewalk"
         minSdk = 26
         targetSdk = 35
         versionCode = 1

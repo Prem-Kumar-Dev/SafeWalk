@@ -83,7 +83,7 @@ If the build fails, copy the first `e:` error lines (file, line number and messa
 
 Only SafeWalk's logs (PowerShell):
 ```powershell
-adb logcat --pid=$(adb shell pidof -s app.safewalk)
+adb logcat --pid=$(adb shell pidof -s com.prem.safewalk)
 ```
 Only errors and crashes from any app:
 ```powershell
@@ -120,5 +120,5 @@ You don't need to be in Chicago. Search works for Chicago places from anywhere, 
 ## Uninstall
 
 ```powershell
-adb uninstall app.safewalk
+adb uninstall com.prem.safewalk
 ```
