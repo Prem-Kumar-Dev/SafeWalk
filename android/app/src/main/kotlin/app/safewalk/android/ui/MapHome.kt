@@ -1,5 +1,6 @@
 package app.safewalk.android.ui
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -12,19 +13,19 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBars
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.windowInsetsPadding
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.MyLocation
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.Settings
-import androidx.compose.material3.Button
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -40,26 +41,27 @@ import java.time.temporal.ChronoUnit
 
 @Composable
 fun MapHome(s: UiState, vm: SafeWalkViewModel, requestLocation: () -> Unit) {
+    val c = SafeWalkTheme.colors
     Box(Modifier.fillMaxSize()) {
         Column(
-            Modifier.windowInsetsPadding(WindowInsets.statusBars).padding(12.dp).fillMaxWidth(),
+            Modifier.windowInsetsPadding(WindowInsets.statusBars).padding(horizontal = 16.dp, vertical = 8.dp).fillMaxWidth(),
             verticalArrangement = Arrangement.spacedBy(8.dp),
         ) {
-            Surface(
-                shape = MaterialTheme.shapes.extraLarge, tonalElevation = 3.dp, shadowElevation = 6.dp,
-                modifier = Modifier.fillMaxWidth(),
-            ) {
+            Surface(shape = CircleShape, shadowElevation = 8.dp, modifier = Modifier.fillMaxWidth()) {
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Row(
                         Modifier.weight(1f).clickable(role = Role.Button) { vm.openSearch(Field.END) }
-                            .padding(horizontal = 16.dp, vertical = 14.dp),
+                            .padding(start = 8.dp, top = 8.dp, bottom = 8.dp),
                         verticalAlignment = Alignment.CenterVertically,
                     ) {
-                        Icon(Icons.Default.Search, contentDescription = null)
+                        Box(Modifier.size(40.dp).background(c.blush, CircleShape), contentAlignment = Alignment.Center) {
+                            Icon(Icons.Default.Search, contentDescription = null, tint = c.accent)
+                        }
                         Spacer(Modifier.width(12.dp))
-                        Text(stringResource(R.string.search_hint), color = MaterialTheme.colorScheme.onSurfaceVariant)
+                        Text(stringResource(R.string.search_hint), style = MaterialTheme.typography.bodyLarge,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant)
                     }
-                    IconButton(onClick = { vm.open(Screen.SETTINGS) }) {
+                    IconButton(onClick = { vm.open(Screen.SETTINGS) }, modifier = Modifier.padding(end = 4.dp)) {
                         Icon(Icons.Default.Settings, contentDescription = stringResource(R.string.settings))
                     }
                 }
@@ -67,29 +69,22 @@ fun MapHome(s: UiState, vm: SafeWalkViewModel, requestLocation: () -> Unit) {
             Notices(s)
         }
 
-        Column(
-            Modifier.align(Alignment.BottomCenter).navigationBarsPadding().padding(12.dp).padding(bottom = 16.dp),
-            horizontalAlignment = Alignment.End,
-        ) {
+        Column(Modifier.align(Alignment.BottomCenter).fillMaxWidth(), horizontalAlignment = Alignment.End) {
             FloatingActionButton(
                 onClick = { if (s.hasLocationPermission) vm.centreOnMe() else requestLocation() },
-                containerColor = MaterialTheme.colorScheme.surface,
-                modifier = Modifier.align(Alignment.End),
+                containerColor = MaterialTheme.colorScheme.surface, contentColor = c.accent,
+                shape = MaterialTheme.shapes.medium,
+                modifier = Modifier.padding(16.dp).then(if (s.droppedPin == null) Modifier.navigationBarsPadding() else Modifier),
             ) { Icon(Icons.Default.MyLocation, contentDescription = stringResource(R.string.centre_on_me)) }
-            if (s.droppedPin != null) {
-                Spacer(Modifier.height(12.dp))
-                Surface(shape = MaterialTheme.shapes.large, tonalElevation = 3.dp, shadowElevation = 6.dp,
-                    modifier = Modifier.fillMaxWidth()) {
-                    Column(Modifier.padding(16.dp)) {
-                        Text(stringResource(R.string.dropped_pin), style = MaterialTheme.typography.titleMedium)
-                        if (!vm.inCoverage(s.droppedPin)) {
-                            Text(stringResource(R.string.outside_coverage), color = MaterialTheme.colorScheme.error)
-                        }
-                        Spacer(Modifier.height(12.dp))
-                        Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-                            Button(onClick = vm::walkHere) { Text(stringResource(R.string.walk_here)) }
-                            OutlinedButton(onClick = vm::startHere) { Text(stringResource(R.string.start_here)) }
-                        }
+            val pin = s.droppedPin
+            if (pin != null) {
+                BottomSheetCard {
+                    val inside = vm.inCoverage(pin)
+                    SheetTitle(stringResource(R.string.dropped_pin), if (inside) null else stringResource(R.string.outside_coverage))
+                    Spacer(Modifier.height(20.dp))
+                    Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+                        PrimaryButton(stringResource(R.string.walk_here), vm::walkHere, Modifier.weight(1f))
+                        QuietButton(stringResource(R.string.start_here), vm::startHere, Modifier.weight(1f))
                     }
                 }
             }
@@ -111,9 +106,9 @@ fun Notices(s: UiState) {
         }
     }
     for (n in notes) {
-        Surface(shape = MaterialTheme.shapes.medium, color = MaterialTheme.colorScheme.secondaryContainer,
-            modifier = Modifier.fillMaxWidth()) {
-            Text(n, style = MaterialTheme.typography.bodyMedium, modifier = Modifier.padding(horizontal = 14.dp, vertical = 8.dp))
+        Surface(shape = MaterialTheme.shapes.medium, color = SafeWalkTheme.colors.blush,
+            contentColor = MaterialTheme.colorScheme.onSurface, modifier = Modifier.fillMaxWidth()) {
+            Text(n, style = MaterialTheme.typography.bodyMedium, modifier = Modifier.padding(horizontal = 16.dp, vertical = 10.dp))
         }
     }
 }

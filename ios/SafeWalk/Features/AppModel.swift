@@ -270,7 +270,8 @@ final class AppModel: ObservableObject {
             let result = await Task.detached { Router(data: d).compare(from: c, to: b.coordinate, slot: slot, preference: pref) }.value
             if case .success(let cmp) = result {
                 comparison = cmp
-                walk = WalkSession(route: choice == .direct ? cmp.direct : cmp.recommended, destination: b.coordinate)
+                walk = WalkSession(route: choice == .direct ? cmp.direct : cmp.recommended, destination: b.coordinate,
+                                   startedAt: walk?.startedAt ?? Date())
             }
         }
     }
@@ -292,12 +293,18 @@ final class WalkSession: ObservableObject {
     @Published private(set) var remainingMetres: Double
     @Published private(set) var offRoute = false
     @Published private(set) var arrived = false
+    /// Distance from the route at the last fix, for the off-route banner.
+    @Published private(set) var offRouteMetres = 0.0
+    /// For the arrived summary: walking time and arrival clock time.
+    let startedAt: Date
+    @Published private(set) var arrivedAt: Date?
     private var offSince: Date?
     private var promptDismissedAt: Date?
 
-    init(route: RouteResult, destination: CLLocationCoordinate2D) {
+    init(route: RouteResult, destination: CLLocationCoordinate2D, startedAt: Date = Date()) {
         self.route = route
         self.destination = destination
+        self.startedAt = startedAt
         remainingMetres = route.lengthMetres
     }
 
@@ -311,9 +318,10 @@ final class WalkSession: ObservableObject {
     func update(with loc: CLLocation) {
         guard !arrived else { return }
         let p = loc.coordinate
-        if Geometry.distance(p, destination) <= Self.arrivedMetres { arrived = true; offRoute = false; return }
+        if Geometry.distance(p, destination) <= Self.arrivedMetres { arrived = true; arrivedAt = Date(); offRoute = false; return }
 
         let proj = Geometry.project(p, onto: route.polyline)
+        offRouteMetres = proj.distance
         remainingMetres = max(0, route.lengthMetres * (1 - proj.frac))
 
         // Current step: the last one whose start is behind us along the route.

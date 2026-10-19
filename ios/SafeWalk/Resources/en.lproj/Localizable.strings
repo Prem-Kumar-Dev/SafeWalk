@@ -64,6 +64,14 @@
 "end" = "End";
 "arrived" = "You've arrived";
 "done" = "Done";
+"off_route_title" = "Off the route";
+"off_route_distance" = "About %@ from your route";
+"off_route_heading" = "You're off the route.";
+"off_route_ask" = "Find a new route from here?";
+"arrived_walked" = "walked";
+"arrived_on_foot" = "on foot";
+"arrived_at" = "arrived";
+"back_to_map" = "Back to map";
 
 "settings" = "Settings";
 "settings_units" = "Units";
@@ -72,6 +80,11 @@
 "settings_clear_recent" = "Clear recent places";
 "settings_data" = "Map data";
 "data_status" = "Forecast for the week of %@ · updated %@";
+"forecast_week" = "Forecast for the week of %@";
+"data_updated" = "updated %@";
+"section_routes" = "Routes";
+"section_phone" = "On this phone";
+"section_about" = "About";
 "data_check" = "Check for update";
 "data_checking" = "Checking…";
 "about" = "About and how it works";

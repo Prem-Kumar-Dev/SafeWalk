@@ -1,6 +1,8 @@
 package app.safewalk.android.ui
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -8,9 +10,11 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.History
@@ -43,7 +47,7 @@ import app.safewalk.android.data.Place
 fun SearchScreen(s: UiState, vm: SafeWalkViewModel) {
     val focus = remember { FocusRequester() }
     LaunchedEffect(Unit) { focus.requestFocus() }
-    Scaffold { pad ->
+    Scaffold(containerColor = MaterialTheme.colorScheme.surface) { pad ->
         Column(Modifier.fillMaxSize().padding(pad).imePadding()) {
             Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.padding(4.dp)) {
                 IconButton(onClick = { vm.back() }) {
@@ -56,13 +60,17 @@ fun SearchScreen(s: UiState, vm: SafeWalkViewModel) {
                         Text(stringResource(if (s.searchFor == Field.START) R.string.choose_start else R.string.search_hint))
                     },
                     singleLine = true,
+                    shape = CircleShape,
                     colors = TextFieldDefaults.colors(
-                        focusedContainerColor = Color.Transparent, unfocusedContainerColor = Color.Transparent,
+                        focusedContainerColor = SafeWalkTheme.colors.sand, unfocusedContainerColor = SafeWalkTheme.colors.sand,
+                        focusedIndicatorColor = Color.Transparent, unfocusedIndicatorColor = Color.Transparent,
+                        cursorColor = SafeWalkTheme.colors.accent,
                     ),
-                    modifier = Modifier.weight(1f).focusRequester(focus),
+                    modifier = Modifier.weight(1f).padding(end = 12.dp).focusRequester(focus),
                 )
             }
-            if (s.searching) LinearProgressIndicator(Modifier.fillMaxWidth()) else HorizontalDivider()
+            if (s.searching) LinearProgressIndicator(Modifier.fillMaxWidth().padding(top = 8.dp), trackColor = SafeWalkTheme.colors.blush)
+            else HorizontalDivider(Modifier.padding(top = 8.dp), color = MaterialTheme.colorScheme.outlineVariant)
             LazyColumn(Modifier.fillMaxSize()) {
                 if (s.myLocation != null && s.query.isBlank()) {
                     item {
@@ -90,10 +98,12 @@ private fun PlaceRow(icon: ImageVector, p: Place, vm: SafeWalkViewModel) = Row1(
 @Composable
 private fun Row1(icon: ImageVector, text: String, onClick: () -> Unit) {
     Row(
-        Modifier.fillMaxWidth().clickable(onClick = onClick).padding(horizontal = 20.dp, vertical = 14.dp),
+        Modifier.fillMaxWidth().clickable(onClick = onClick).padding(horizontal = 20.dp, vertical = 10.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {
-        Icon(icon, contentDescription = null, tint = MaterialTheme.colorScheme.onSurfaceVariant)
+        Box(Modifier.size(40.dp).background(SafeWalkTheme.colors.blush, CircleShape), contentAlignment = Alignment.Center) {
+            Icon(icon, contentDescription = null, tint = SafeWalkTheme.colors.accent, modifier = Modifier.size(20.dp))
+        }
         Spacer(Modifier.width(16.dp))
         Text(text, style = MaterialTheme.typography.bodyLarge)
     }
@@ -101,6 +111,6 @@ private fun Row1(icon: ImageVector, text: String, onClick: () -> Unit) {
 
 @Composable
 private fun Hint(text: String) {
-    Text(text, style = MaterialTheme.typography.labelLarge, color = MaterialTheme.colorScheme.onSurfaceVariant,
+    Text(text, style = MaterialTheme.typography.labelMedium, color = SafeWalkTheme.colors.accent,
         modifier = Modifier.padding(horizontal = 20.dp, vertical = 12.dp))
 }

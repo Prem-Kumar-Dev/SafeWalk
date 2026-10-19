@@ -4,10 +4,12 @@ import SwiftUI
 import UIKit
 
 enum MapColors {
-    static let brand = UIColor(red: 0.15, green: 0.39, blue: 0.92, alpha: 1)
-    static let amber = UIColor(red: 0.96, green: 0.65, blue: 0.10, alpha: 1)
-    static let deepOrange = UIColor(red: 0.90, green: 0.32, blue: 0.05, alpha: 1)
-    static let grey = UIColor(white: 0.55, alpha: 1)
+    static let brand = UIColor(hex: 0xFF8A8A)       // coral: the chosen route
+    static let amber = UIColor(hex: 0xF2A93B)       // elevated-risk stretches
+    static let deepOrange = UIColor(hex: 0xD9541E)  // higher-risk stretches
+    static let grey = UIColor(hex: 0xA39C9E)        // the route not chosen
+    static let ink = UIColor(hex: 0x231C1E)
+    static let pin = UIColor(hex: 0xE25C5C)
     static let loop = CLLocationCoordinate2D(latitude: 41.8819, longitude: -87.6278)
 }
 
@@ -236,16 +238,16 @@ final class PinView: MLNAnnotationView {
         layer.shadowRadius = 3
         layer.shadowOffset = CGSize(width: 0, height: 1)
         switch kind {
-        case "A": backgroundColor = .darkGray
+        case "A": backgroundColor = MapColors.ink
         case "B": backgroundColor = MapColors.brand
-        default: backgroundColor = .systemRed
+        default: backgroundColor = MapColors.pin
         }
         if kind != "pin" {
             let label = UILabel(frame: bounds)
             label.text = kind
             label.textAlignment = .center
-            label.font = .systemFont(ofSize: 14, weight: .bold)
-            label.textColor = .white
+            label.font = SW.uiFont(.bold, 14)
+            label.textColor = kind == "B" ? UIColor(hex: 0x3B1517) : .white
             addSubview(label)
         }
         isAccessibilityElement = true

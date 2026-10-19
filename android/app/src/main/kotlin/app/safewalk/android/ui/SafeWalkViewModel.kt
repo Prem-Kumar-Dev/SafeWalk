@@ -41,6 +41,9 @@ data class WalkState(
     val fix: RouteProgress.Fix? = null,
     val offRoutePrompt: Boolean = false,
     val arrived: Boolean = false,
+    /** for the arrived summary: walking time and arrival clock time */
+    val startedAtMs: Long = System.currentTimeMillis(),
+    val arrivedAtMs: Long? = null,
 )
 
 data class UiState(
@@ -151,7 +154,8 @@ class SafeWalkViewModel(app: Application) : AndroidViewModel(app) {
             if (offRouteSince == 0L) offRouteSince = now
         } else offRouteSince = 0L
         val prompt = w.offRoutePrompt || (offRouteSince != 0L && now - offRouteSince >= WalkTracker.OFF_ROUTE_SECONDS * 1000)
-        _ui.update { it.copy(walk = w.copy(fix = fix, offRoutePrompt = prompt && !fix.arrived, arrived = fix.arrived)) }
+        _ui.update { it.copy(walk = w.copy(fix = fix, offRoutePrompt = prompt && !fix.arrived, arrived = fix.arrived,
+            arrivedAtMs = w.arrivedAtMs ?: now.takeIf { fix.arrived })) }
     }
 
     val searchAvailable: Boolean get() = search.available
@@ -325,7 +329,7 @@ class SafeWalkViewModel(app: Application) : AndroidViewModel(app) {
                 val route = if (level != SafetyLevel.DIRECT && r.safer != null) r.safer!! else r.direct
                 progress = RouteProgress(route)
                 offRouteSince = 0L
-                _ui.update { it.copy(walk = WalkState(route), trip = r,
+                _ui.update { it.copy(walk = WalkState(route, startedAtMs = it.walk?.startedAtMs ?: System.currentTimeMillis()), trip = r,
                     start = Endpoint(Place(str(R.string.your_location), here.lat, here.lon), mine = true)) }
             } else dismissOffRoute()
         }

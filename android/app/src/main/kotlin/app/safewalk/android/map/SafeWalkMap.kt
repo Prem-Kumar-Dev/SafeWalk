@@ -175,9 +175,9 @@ private fun addRouteLayers(s: Style, dark: Boolean) {
     s.addSource(GeoJsonSource(SRC_OTHER))
     s.addSource(GeoJsonSource(SRC_MAIN))
     s.addSource(GeoJsonSource(SRC_MARKERS))
-    val casing = if (dark) "#0E1215" else "#FFFFFF"
+    val casing = if (dark) "#171213" else "#FFFFFF"
     s.addLayer(LineLayer("sw-other", SRC_OTHER).withProperties(
-        PropertyFactory.lineColor(if (dark) "#6B7680" else "#8A949E"),
+        PropertyFactory.lineColor(if (dark) "#8C8385" else "#A39C9E"),
         PropertyFactory.lineWidth(5f),
         PropertyFactory.lineOpacity(0.9f),
         PropertyFactory.lineCap(Property.LINE_CAP_ROUND),
@@ -190,8 +190,8 @@ private fun addRouteLayers(s: Style, dark: Boolean) {
         PropertyFactory.lineJoin(Property.LINE_JOIN_ROUND),
     ))
     val bandColor = Expression.match(
-        Expression.get("band"), Expression.color(Color.parseColor(if (dark) "#5EA4FF" else "#1D67C9")),
-        Expression.stop("ELEVATED", Expression.color(Color.parseColor("#E8A33B"))),
+        Expression.get("band"), Expression.color(Color.parseColor("#FF8A8A")),
+        Expression.stop("ELEVATED", Expression.color(Color.parseColor("#F2A93B"))),
         Expression.stop("HIGH", Expression.color(Color.parseColor("#D9541E"))),
         Expression.stop("VERY_HIGH", Expression.color(Color.parseColor("#D9541E"))),
     )
@@ -212,11 +212,11 @@ private fun addRouteLayers(s: Style, dark: Boolean) {
     s.addLayer(CircleLayer("sw-markers", SRC_MARKERS).withProperties(
         PropertyFactory.circleRadius(Expression.match(Expression.get("kind"), Expression.literal(7f),
             Expression.stop("pin", 9f))),
-        PropertyFactory.circleColor(Expression.match(Expression.get("kind"), Expression.color(Color.parseColor("#121820")),
+        PropertyFactory.circleColor(Expression.match(Expression.get("kind"), Expression.color(Color.parseColor("#231C1E")),
             Expression.stop("start", Expression.color(Color.WHITE)),
-            Expression.stop("pin", Expression.color(Color.parseColor("#1D67C9"))))),
+            Expression.stop("pin", Expression.color(Color.parseColor("#E25C5C"))))),
         PropertyFactory.circleStrokeColor(Expression.match(Expression.get("kind"), Expression.color(Color.WHITE),
-            Expression.stop("start", Expression.color(Color.parseColor("#121820"))))),
+            Expression.stop("start", Expression.color(Color.parseColor("#231C1E"))))),
         PropertyFactory.circleStrokeWidth(3f),
     ))
 }
