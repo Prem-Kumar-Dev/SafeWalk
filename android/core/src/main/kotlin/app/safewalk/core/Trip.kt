@@ -38,6 +38,8 @@ data class RouteDetails(
     val bandRuns: List<Pair<RiskBand, List<LatLon>>>,
     val higherRiskStretches: Int,
     val steps: List<Step>,
+    /** The pieces counted in [higherRiskStretches], in walking order. */
+    val higherRiskBlocks: List<HigherRiskBlock> = emptyList(),
 ) {
     val lengthM get() = route.lengthM
     val walkingMinutes get() = (route.lengthM / WALK_SPEED_MS / 60).roundToInt()
@@ -59,6 +61,8 @@ sealed interface TripResult {
         val extraMinutes: Int,
         val longWalk: Boolean,
         val forecastAvailable: Boolean,
+        /** One plain-language sentence on why this route is shown, e.g. "Avoids 3 higher-risk blocks on S State St, 4% longer." */
+        val explanation: RouteExplanation,
     ) : TripResult
 
     data object OutsideArea : TripResult
@@ -92,6 +96,12 @@ class TripPlanner(private val data: SafeWalkData) {
             if (same || reduction < 0.10) lowerAlready = true
             else { safer = details(s, slot); cut = (reduction * 100).roundToInt() }
         }
+        val explanation = when {
+            !forecast -> RouteExplanation(RouteExplanation.Kind.NO_FORECAST)
+            safer != null -> RouteExplanation.lowerRisk(direct, safer.route, directDetails.higherRiskBlocks, cut)
+            lowerAlready -> RouteExplanation(RouteExplanation.Kind.DIRECT_IS_LOWER_RISK)
+            else -> RouteExplanation.direct(directDetails.higherRiskBlocks)
+        }
         val extra = safer?.let { it.lengthM - direct.lengthM } ?: 0.0
         return TripResult.Routes(
             slot = slot, level = level, direct = directDetails, safer = safer,
@@ -100,6 +110,7 @@ class TripPlanner(private val data: SafeWalkData) {
             extraMinutes = (extra / RouteDetails.WALK_SPEED_MS / 60).roundToInt(),
             longWalk = (safer ?: directDetails).lengthM > 15_000,
             forecastAvailable = forecast,
+            explanation = explanation,
         )
     }
 
@@ -116,11 +127,12 @@ class TripPlanner(private val data: SafeWalkData) {
             if (last != null && last.first == band) piece.forEach { if (last.second.last() != it) last.second += it }
             else runs += band to piece.toMutableList()
         }
-        val stretches = route.pieces.count {
-            data.risk != null && g.length[it.edge] * abs(it.to - it.from) >= 25.0 &&
-                risk.stored(it.edge, slot.index) >= risk.high[slot.index]
+        val blocks = if (data.risk == null) emptyList() else route.pieces.mapNotNull {
+            val metres = g.length[it.edge] * abs(it.to - it.from)
+            if (metres >= 25.0 && risk.stored(it.edge, slot.index) >= risk.high[slot.index])
+                HigherRiskBlock(it.edge, g.name(it.edge), metres) else null
         }
-        return RouteDetails(route, pts, runs, stretches, steps(route))
+        return RouteDetails(route, pts, runs, blocks.size, steps(route), blocks)
     }
 
     private fun steps(route: Route): List<Step> {
