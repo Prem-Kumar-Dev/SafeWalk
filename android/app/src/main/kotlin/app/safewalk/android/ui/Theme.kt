@@ -46,7 +46,7 @@ data class SafeWalkColors(
 private val LightExtra = SafeWalkColors(
     accent = Color(0xFFE25C5C), blush = Color(0xFFFFE3E1), blushSoft = Color(0xFFFFF4F3),
     sand = Color(0xFFF2EBEA), banner = Ink, onBanner = Color.White, onBannerMuted = Color(0xFFD9CFD1),
-    emergency = Color(0xFFD7263D), amber = Color(0xFFF2A93B), riskHigh = Color(0xFFD9541E),
+    emergency = Color(0xFFD7263D), amber = Color(0xFFF2A93B), riskHigh = Color(0xFFC2410C),
     success = Color(0xFF2F9E62), routeOther = Color(0xFFA39C9E),
 )
 private val DarkExtra = SafeWalkColors(

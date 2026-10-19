@@ -1,6 +1,7 @@
 package app.safewalk.android.ui
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -60,13 +61,15 @@ fun SearchScreen(s: UiState, vm: SafeWalkViewModel) {
                         Text(stringResource(if (s.searchFor == Field.START) R.string.choose_start else R.string.search_hint))
                     },
                     singleLine = true,
-                    shape = CircleShape,
+                    shape = MaterialTheme.shapes.medium,
                     colors = TextFieldDefaults.colors(
-                        focusedContainerColor = SafeWalkTheme.colors.sand, unfocusedContainerColor = SafeWalkTheme.colors.sand,
+                        focusedContainerColor = SafeWalkTheme.colors.blushSoft, unfocusedContainerColor = SafeWalkTheme.colors.sand,
                         focusedIndicatorColor = Color.Transparent, unfocusedIndicatorColor = Color.Transparent,
                         cursorColor = SafeWalkTheme.colors.accent,
                     ),
-                    modifier = Modifier.weight(1f).padding(end = 12.dp).focusRequester(focus),
+                    modifier = Modifier.weight(1f).padding(end = 12.dp)
+                        .border(1.5.dp, MaterialTheme.colorScheme.primary, MaterialTheme.shapes.medium)
+                        .focusRequester(focus),
                 )
             }
             if (s.searching) LinearProgressIndicator(Modifier.fillMaxWidth().padding(top = 8.dp), trackColor = SafeWalkTheme.colors.blush)
@@ -93,16 +96,19 @@ fun SearchScreen(s: UiState, vm: SafeWalkViewModel) {
 }
 
 @Composable
-private fun PlaceRow(icon: ImageVector, p: Place, vm: SafeWalkViewModel) = Row1(icon, p.name) { vm.choosePlace(p) }
+private fun PlaceRow(icon: ImageVector, p: Place, vm: SafeWalkViewModel) =
+    Row1(icon, p.name, quiet = icon == Icons.Default.History) { vm.choosePlace(p) }
 
 @Composable
-private fun Row1(icon: ImageVector, text: String, onClick: () -> Unit) {
+private fun Row1(icon: ImageVector, text: String, quiet: Boolean = false, onClick: () -> Unit) {
     Row(
         Modifier.fillMaxWidth().clickable(onClick = onClick).padding(horizontal = 20.dp, vertical = 10.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {
-        Box(Modifier.size(40.dp).background(SafeWalkTheme.colors.blush, CircleShape), contentAlignment = Alignment.Center) {
-            Icon(icon, contentDescription = null, tint = SafeWalkTheme.colors.accent, modifier = Modifier.size(20.dp))
+        Box(Modifier.size(40.dp).background(if (quiet) SafeWalkTheme.colors.sand else SafeWalkTheme.colors.blush, CircleShape),
+            contentAlignment = Alignment.Center) {
+            Icon(icon, contentDescription = null, modifier = Modifier.size(20.dp),
+                tint = if (quiet) MaterialTheme.colorScheme.onSurfaceVariant else SafeWalkTheme.colors.accent)
         }
         Spacer(Modifier.width(16.dp))
         Text(text, style = MaterialTheme.typography.bodyLarge)

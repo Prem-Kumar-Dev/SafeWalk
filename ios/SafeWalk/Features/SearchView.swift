@@ -100,8 +100,9 @@ struct SearchView: View {
 
     private func row(_ title: String, _ subtitle: String?, icon: String) -> some View {
         HStack(spacing: 12) {
-            Image(systemName: icon).font(.system(size: 15, weight: .semibold)).foregroundStyle(SW.accent)
-                .frame(width: 36, height: 36).background(SW.blush, in: Circle())
+            Image(systemName: icon).font(.system(size: 15, weight: .semibold))
+                .foregroundStyle(icon == "clock" ? SW.ink2 : SW.accent)
+                .frame(width: 36, height: 36).background(icon == "clock" ? SW.sand : SW.blush, in: Circle())
             VStack(alignment: .leading, spacing: 2) {
                 Text(title).font(.swBody).foregroundStyle(SW.ink)
                 if let subtitle, !subtitle.isEmpty {

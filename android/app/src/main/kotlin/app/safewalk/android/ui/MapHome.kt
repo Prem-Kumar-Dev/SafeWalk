@@ -19,12 +19,12 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Close
+import androidx.compose.material.icons.filled.History
 import androidx.compose.material.icons.filled.MyLocation
 import androidx.compose.material.icons.filled.Search
-import androidx.compose.material.icons.filled.Settings
-import androidx.compose.material3.FloatingActionButton
+import androidx.compose.material.icons.filled.Tune
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -47,22 +47,24 @@ fun MapHome(s: UiState, vm: SafeWalkViewModel, requestLocation: () -> Unit) {
             Modifier.windowInsetsPadding(WindowInsets.statusBars).padding(horizontal = 16.dp, vertical = 8.dp).fillMaxWidth(),
             verticalArrangement = Arrangement.spacedBy(8.dp),
         ) {
-            Surface(shape = CircleShape, shadowElevation = 8.dp, modifier = Modifier.fillMaxWidth()) {
-                Row(verticalAlignment = Alignment.CenterVertically) {
-                    Row(
-                        Modifier.weight(1f).clickable(role = Role.Button) { vm.openSearch(Field.END) }
-                            .padding(start = 8.dp, top = 8.dp, bottom = 8.dp),
-                        verticalAlignment = Alignment.CenterVertically,
-                    ) {
-                        Box(Modifier.size(40.dp).background(c.blush, CircleShape), contentAlignment = Alignment.Center) {
-                            Icon(Icons.Default.Search, contentDescription = null, tint = c.accent)
-                        }
+            Row(horizontalArrangement = Arrangement.spacedBy(10.dp), verticalAlignment = Alignment.CenterVertically) {
+                Surface(
+                    onClick = { vm.openSearch(Field.END) }, shape = MaterialTheme.shapes.medium, shadowElevation = 6.dp,
+                    modifier = Modifier.weight(1f).height(52.dp),
+                ) {
+                    Row(Modifier.padding(horizontal = 16.dp), verticalAlignment = Alignment.CenterVertically) {
+                        Icon(Icons.Default.Search, contentDescription = null, tint = c.accent)
                         Spacer(Modifier.width(12.dp))
                         Text(stringResource(R.string.search_hint), style = MaterialTheme.typography.bodyLarge,
                             color = MaterialTheme.colorScheme.onSurfaceVariant)
                     }
-                    IconButton(onClick = { vm.open(Screen.SETTINGS) }, modifier = Modifier.padding(end = 4.dp)) {
-                        Icon(Icons.Default.Settings, contentDescription = stringResource(R.string.settings))
+                }
+                Surface(
+                    onClick = { vm.open(Screen.SETTINGS) }, shape = MaterialTheme.shapes.medium, shadowElevation = 6.dp,
+                    modifier = Modifier.size(52.dp),
+                ) {
+                    Box(contentAlignment = Alignment.Center) {
+                        Icon(Icons.Default.Tune, contentDescription = stringResource(R.string.settings))
                     }
                 }
             }
@@ -70,21 +72,54 @@ fun MapHome(s: UiState, vm: SafeWalkViewModel, requestLocation: () -> Unit) {
         }
 
         Column(Modifier.align(Alignment.BottomCenter).fillMaxWidth(), horizontalAlignment = Alignment.End) {
-            FloatingActionButton(
-                onClick = { if (s.hasLocationPermission) vm.centreOnMe() else requestLocation() },
-                containerColor = MaterialTheme.colorScheme.surface, contentColor = c.accent,
-                shape = MaterialTheme.shapes.medium,
-                modifier = Modifier.padding(16.dp).then(if (s.droppedPin == null) Modifier.navigationBarsPadding() else Modifier),
-            ) { Icon(Icons.Default.MyLocation, contentDescription = stringResource(R.string.centre_on_me)) }
             val pin = s.droppedPin
+            val showRecent = pin == null && s.recent.isNotEmpty()
+            Surface(
+                onClick = { if (s.hasLocationPermission) vm.centreOnMe() else requestLocation() },
+                shape = CircleShape, shadowElevation = 6.dp, contentColor = c.accent,
+                modifier = Modifier.padding(16.dp).then(if (pin == null && !showRecent) Modifier.navigationBarsPadding() else Modifier)
+                    .size(52.dp),
+            ) {
+                Box(contentAlignment = Alignment.Center) {
+                    Icon(Icons.Default.MyLocation, contentDescription = stringResource(R.string.centre_on_me))
+                }
+            }
             if (pin != null) {
                 BottomSheetCard {
                     val inside = vm.inCoverage(pin)
-                    SheetTitle(stringResource(R.string.dropped_pin), if (inside) null else stringResource(R.string.outside_coverage))
+                    Row(verticalAlignment = Alignment.Top) {
+                        Column(Modifier.weight(1f)) {
+                            SheetTitle(stringResource(R.string.dropped_pin), if (inside) null else stringResource(R.string.outside_coverage))
+                        }
+                        Surface(onClick = vm::clearPin, shape = CircleShape, color = c.sand, modifier = Modifier.size(32.dp)) {
+                            Box(contentAlignment = Alignment.Center) {
+                                Icon(Icons.Default.Close, contentDescription = stringResource(R.string.cancel), modifier = Modifier.size(16.dp))
+                            }
+                        }
+                    }
                     Spacer(Modifier.height(20.dp))
                     Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
                         PrimaryButton(stringResource(R.string.walk_here), vm::walkHere, Modifier.weight(1f))
                         QuietButton(stringResource(R.string.start_here), vm::startHere, Modifier.weight(1f))
+                    }
+                }
+            } else if (showRecent) {
+                BottomSheetCard {
+                    Text(stringResource(R.string.recent), style = MaterialTheme.typography.labelMedium,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant)
+                    Spacer(Modifier.height(4.dp))
+                    for (p in s.recent.take(3)) {
+                        Row(
+                            Modifier.fillMaxWidth().clickable(role = Role.Button) { vm.walkTo(p) }.padding(vertical = 8.dp),
+                            verticalAlignment = Alignment.CenterVertically,
+                        ) {
+                            Box(Modifier.size(36.dp).background(c.sand, CircleShape), contentAlignment = Alignment.Center) {
+                                Icon(Icons.Default.History, contentDescription = null,
+                                    tint = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.size(18.dp))
+                            }
+                            Spacer(Modifier.width(14.dp))
+                            Text(p.name, style = MaterialTheme.typography.bodyLarge, maxLines = 1)
+                        }
                     }
                 }
             }

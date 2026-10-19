@@ -34,8 +34,10 @@ import androidx.compose.ui.unit.sp
 import app.safewalk.android.R
 import app.safewalk.core.RouteDetails
 import app.safewalk.core.Step
+import app.safewalk.core.TripResult
 import app.safewalk.core.Turn
 import java.time.Instant
+import java.time.LocalTime
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
 import java.time.format.FormatStyle
@@ -62,14 +64,18 @@ fun WalkingOverlay(s: UiState, vm: SafeWalkViewModel) {
             ) { Icon(Icons.Default.WarningAmber, contentDescription = null, tint = Ink, modifier = Modifier.size(22.dp)) }
             else -> {
                 val step = fix?.nextStep
+                val text = when {
+                    step != null -> instruction(step)
+                    fix == null && walk.route.steps.isNotEmpty() -> instruction(walk.route.steps.first())
+                    else -> stringResource(R.string.arrive_destination)
+                }
+                // distance to the turn leads; the instruction sits under it
                 DarkBanner(
-                    title = when {
-                        step != null -> instruction(step)
-                        fix == null && walk.route.steps.isNotEmpty() -> instruction(walk.route.steps.first())
-                        else -> stringResource(R.string.arrive_destination)
-                    },
-                    subtitle = fix?.let { formatDistance(it.metresToNextStep, s.units) },
+                    title = fix?.let { formatDistance(it.metresToNextStep, s.units) } ?: text,
+                    subtitle = if (fix != null) text else null,
                     badgeColor = MaterialTheme.colorScheme.primary,
+                    badgeShape = RoundedCornerShape(14.dp),
+                    titleStyle = if (fix != null) MaterialTheme.typography.headlineSmall else MaterialTheme.typography.titleMedium,
                 ) { Text(arrow(step?.turn), color = CoralInk, fontSize = 22.sp, fontWeight = FontWeight.Bold) }
             }
         }
@@ -89,17 +95,30 @@ fun WalkingOverlay(s: UiState, vm: SafeWalkViewModel) {
                 }
                 else -> {
                     val left = fix?.remainingM ?: walk.route.lengthM
-                    Text(
-                        stringResource(R.string.left_summary, formatDistance(left, s.units),
-                            (left / RouteDetails.WALK_SPEED_MS / 60).roundToInt()),
-                        style = MaterialTheme.typography.titleLarge,
-                    )
+                    val minutes = (left / RouteDetails.WALK_SPEED_MS / 60).roundToInt()
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Text(
+                            stringResource(R.string.left_summary, formatDistance(left, s.units), minutes),
+                            style = MaterialTheme.typography.titleLarge, modifier = Modifier.weight(1f),
+                        )
+                        Surface(shape = CircleShape, color = c.blush, contentColor = c.accent) {
+                            Text(levelLabel(s.level), style = MaterialTheme.typography.labelSmall,
+                                modifier = Modifier.padding(horizontal = 10.dp, vertical = 4.dp))
+                        }
+                    }
                     Spacer(Modifier.height(4.dp))
+                    val lower = (s.trip as? TripResult.Routes)?.safer?.let { it === walk.route } == true
+                    val arrive = LocalTime.now().plusMinutes(minutes.toLong()).format(DateTimeFormatter.ofLocalizedTime(FormatStyle.SHORT))
+                    Text(
+                        stringResource(R.string.walk_arrive_at,
+                            stringResource(if (lower) R.string.route_lower_risk_title else R.string.route_direct_title), arrive),
+                        style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    )
                     Text(stringResource(R.string.route_fine_print), style = MaterialTheme.typography.bodySmall,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant)
-                    Spacer(Modifier.height(20.dp))
+                        color = MaterialTheme.colorScheme.outline)
+                    Spacer(Modifier.height(16.dp))
                     Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-                        Call911Button(Modifier.weight(1f))
+                        Call911Button(Modifier.weight(1.6f))
                         QuietButton(stringResource(R.string.end), vm::endWalk, Modifier.weight(1f))
                     }
                 }

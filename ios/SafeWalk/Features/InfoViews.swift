@@ -2,79 +2,6 @@ import SwiftUI
 
 // Welcome, Settings, About, Privacy and the disclaimer (spec 01 §1, §6–8).
 
-struct OnboardingView: View {
-    @ObservedObject var model: AppModel
-    let finish: () -> Void
-    @State private var page = 0
-
-    var body: some View {
-        VStack(spacing: 24) {
-            Spacer()
-            switch page {
-            case 0: welcome("point.topleft.down.to.point.bottomright.curvepath", L10n.welcome1)
-            case 1: welcome("arrow.triangle.branch", L10n.welcome2)
-            case 2: welcome("iphone", L10n.welcome3)
-            case 3:
-                DisclaimerCard()
-            default:
-                VStack(spacing: 16) {
-                    Image(systemName: "location.fill").font(.system(size: 40, weight: .semibold)).foregroundStyle(SW.accent)
-                        .frame(width: 120, height: 120).background(SW.blush, in: Circle())
-                    Text(L10n.s("location_reason")).font(.jakarta(20, .bold, relativeTo: .title3))
-                        .foregroundStyle(SW.ink).multilineTextAlignment(.center)
-                }
-            }
-            Spacer()
-            bottomButtons
-        }
-        .padding(24)
-        .background(SW.paper.ignoresSafeArea())
-    }
-
-    @ViewBuilder
-    private var bottomButtons: some View {
-        switch page {
-        case 0...2:
-            Button(L10n.s("next")) { page += 1 }.buttonStyle(CoralButtonStyle())
-        case 3:
-            Button(L10n.disclaimerAccept) {
-                UserDefaults.standard.set(true, forKey: "disclaimer.accepted")
-                page += 1
-            }
-            .buttonStyle(CoralButtonStyle())
-        default:
-            VStack(spacing: 12) {
-                Button(L10n.s("location_allow")) {
-                    model.location.requestPermission()
-                    finish()
-                }
-                .buttonStyle(CoralButtonStyle())
-                Button(L10n.s("location_not_now")) { finish() }.buttonStyle(QuietButtonStyle())
-            }
-        }
-    }
-
-    private func welcome(_ symbol: String, _ text: String) -> some View {
-        VStack(spacing: 28) {
-            Image(systemName: symbol).font(.system(size: 64, weight: .semibold)).foregroundStyle(SW.accent)
-                .frame(width: 200, height: 200).background(SW.blush, in: Circle())
-                .accessibilityHidden(true)
-            Text(text).font(.jakarta(24, .bold, relativeTo: .title2)).foregroundStyle(SW.ink).multilineTextAlignment(.center)
-        }
-    }
-}
-
-struct DisclaimerCard: View {
-    var body: some View {
-        VStack(alignment: .leading, spacing: 12) {
-            Label(L10n.s("disclaimer"), systemImage: "exclamationmark.triangle").font(.swHeadline).foregroundStyle(SW.accent)
-            Text(L10n.disclaimerBody).font(.swBody).foregroundStyle(SW.ink)
-        }
-        .padding(20)
-        .background(SW.card, in: RoundedRectangle(cornerRadius: 22, style: .continuous))
-    }
-}
-
 struct SettingsView: View {
     @ObservedObject var model: AppModel
     @Environment(\.dismiss) private var dismiss
@@ -144,7 +71,16 @@ struct SettingsView: View {
             .background(SW.paper)
             .font(.swBody)
             .navigationTitle(L10n.s("settings"))
-            .toolbar { ToolbarItem(placement: .confirmationAction) { Button(L10n.s("done")) { dismiss() } } }
+            .navigationBarTitleDisplayMode(.large)
+            .toolbar {
+                ToolbarItem(placement: .navigationBarLeading) {
+                    Button { dismiss() } label: {
+                        HStack(spacing: 4) { Image(systemName: "chevron.left"); Text(L10n.s("map")) }
+                            .font(.jakarta(16, .medium)).foregroundStyle(SW.accent)
+                    }
+                    .accessibilityLabel(L10n.s("done"))
+                }
+            }
         }
     }
 

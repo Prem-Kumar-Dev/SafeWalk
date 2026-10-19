@@ -59,25 +59,22 @@ struct MapHomeView: View {
             HStack(spacing: 10) {
                 Button { searching = true } label: {
                     HStack(spacing: 12) {
-                        Image(systemName: "magnifyingglass")
-                            .font(.system(size: 16, weight: .semibold))
-                            .foregroundStyle(SW.accent)
-                            .frame(width: 36, height: 36)
-                            .background(SW.blush, in: Circle())
+                        Image(systemName: "magnifyingglass").font(.system(size: 16, weight: .semibold)).foregroundStyle(SW.accent)
                         Text(L10n.searchHint).font(.swBody).foregroundStyle(SW.ink2)
                         Spacer()
                     }
-                    .padding(6)
-                    .background(SW.card, in: Capsule())
+                    .padding(.horizontal, 16)
+                    .frame(height: 52)
+                    .background(SW.card, in: RoundedRectangle(cornerRadius: 16, style: .continuous))
                     .shadow(color: .black.opacity(0.12), radius: 10, y: 3)
                 }
                 .buttonStyle(.plain)
                 .accessibilityLabel(L10n.searchHint)
                 Button { showSettings = true } label: {
-                    Image(systemName: "gearshape").font(.system(size: 18, weight: .semibold))
+                    Image(systemName: "slider.horizontal.3").font(.system(size: 17, weight: .semibold))
                         .foregroundStyle(SW.ink)
-                        .frame(width: 48, height: 48)
-                        .background(SW.card, in: Circle())
+                        .frame(width: 52, height: 52)
+                        .background(SW.card, in: RoundedRectangle(cornerRadius: 16, style: .continuous))
                         .shadow(color: .black.opacity(0.12), radius: 10, y: 3)
                 }
                 .buttonStyle(.plain)
@@ -112,7 +109,11 @@ struct MapHomeView: View {
         }
         .padding(.horizontal)
         .safeAreaInset(edge: .bottom, spacing: 0) {
-            if let pin = model.droppedPin { PinActions(model: model, coordinate: pin) }
+            if let pin = model.droppedPin {
+                PinActions(model: model, coordinate: pin)
+            } else if !model.recents.isEmpty {
+                RecentSheet(model: model)
+            }
         }
         .sheet(isPresented: $searching) { SearchView(model: model, purpose: .destination) }
         .sheet(isPresented: $showSettings) { SettingsView(model: model) }
@@ -162,6 +163,35 @@ struct PinActions: View {
                     .buttonStyle(QuietButtonStyle())
             }
             .padding(.top, 20)
+        }
+    }
+}
+
+/// Up to three recent places under the map; tapping one plans a walk there.
+struct RecentSheet: View {
+    @ObservedObject var model: AppModel
+
+    var body: some View {
+        BottomCard {
+            Text(L10n.s("search_recent")).font(.swSection).foregroundStyle(SW.ink2)
+            ForEach(model.recents.prefix(3)) { p in
+                Button { model.planWalk(to: p) } label: {
+                    HStack(spacing: 14) {
+                        Image(systemName: "clock").font(.system(size: 14, weight: .semibold)).foregroundStyle(SW.ink2)
+                            .frame(width: 36, height: 36).background(SW.sand, in: Circle())
+                        VStack(alignment: .leading, spacing: 2) {
+                            Text(p.title).font(.swBody).foregroundStyle(SW.ink).lineLimit(1)
+                            if let sub = p.subtitle, !sub.isEmpty {
+                                Text(sub).font(.swCaption).foregroundStyle(SW.ink2).lineLimit(1)
+                            }
+                        }
+                        Spacer()
+                    }
+                    .padding(.vertical, 8)
+                    .contentShape(Rectangle())
+                }
+                .buttonStyle(.plain)
+            }
         }
     }
 }
