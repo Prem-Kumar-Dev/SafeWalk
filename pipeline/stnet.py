@@ -37,7 +37,9 @@ class STNet(nn.Module):
 
 
 def forecast(C, H, mask, static, kde_best, train_weeks, target, epochs=19, seeds=(0, 1, 2), log=print):
-    """C: (weeks, 2, 6, NY, NX) street-crime counts; H: hotspot.History(C). Returns (2, 6, NY, NX) incidents per week."""
+    """C: (weeks, 2, 6, NY, NX) street-crime counts; H: hotspot.History(C). Returns (2, 6, NY, NX) incidents per week,
+    or (len(target), 2, 6, NY, NX) when target is a list of weeks."""
+    targets = list(target) if np.ndim(target) else [target]
     ry, rx = np.nonzero(mask.any(1))[0], np.nonzero(mask.any(0))[0]
     box = np.s_[max(ry[0] - 8, 0):ry[-1] + 9, max(rx[0] - 8, 0):rx[-1] + 9]
     mask_b = mask[box]
@@ -52,7 +54,7 @@ def forecast(C, H, mask, static, kde_best, train_weeks, target, epochs=19, seeds
         ch.append(np.stack(street + [mask.astype(np.float32)]))
         return np.concatenate(ch)[(slice(None),) + box].astype(np.float16), np.log(kde + EPS)[(slice(None),) + box].astype(np.float32)
 
-    X = {t: week_input(t) for t in list(train_weeks) + [target]}
+    X = {t: week_input(t) for t in list(train_weeks) + targets}
     tr = np.stack([X[t][0] for t in train_weeks]).astype(np.float32)
     mu = tr[..., mask_b].mean((0, 2)); sd = tr[..., mask_b].std((0, 2)) + 1e-3
     del tr
@@ -77,9 +79,10 @@ def forecast(C, H, mask, static, kde_best, train_weeks, target, epochs=19, seeds
                 loss = (torch.exp(lm) - y * lm)[..., mask_t].mean()
                 opt.zero_grad(); loss.backward(); opt.step()
         m.eval()
-        x, o, _ = batch([target])
+        x, o, _ = batch(targets)
         with torch.no_grad():
-            preds.append(torch.exp(m(x, o))[0].numpy())
+            preds.append(torch.exp(m(x, o)).numpy())
         log(f"net seed {seed} trained")
-    out = np.zeros((S, chi.NY, chi.NX), np.float32); out[(slice(None),) + box] = np.mean(preds, 0)
-    return out.reshape(2, chi.N_WIN, chi.NY, chi.NX)
+    out = np.zeros((len(targets), S, chi.NY, chi.NX), np.float32); out[(slice(None), slice(None)) + box] = np.mean(preds, 0)
+    out = out.reshape(len(targets), 2, chi.N_WIN, chi.NY, chi.NX)
+    return out if np.ndim(target) else out[0]

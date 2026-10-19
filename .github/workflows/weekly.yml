@@ -4,9 +4,15 @@ name: weekly-retrain
 on:
   schedule:
     - cron: "0 9 * * 1"        # Mondays 09:00 UTC (4 am Chicago)
-  workflow_dispatch: {}
+  workflow_dispatch:
+    inputs:
+      skip_gate:
+        description: "Publish even if the model does not beat the KDE baseline (emergency use only)"
+        type: boolean
+        default: false
 permissions:
   contents: write
+  issues: write          # to open an issue (and email the owner) when a run fails
 concurrency: {group: weekly-retrain, cancel-in-progress: false}
 jobs:
   retrain:
@@ -29,6 +35,8 @@ jobs:
         working-directory: pipeline
         env:
           SOCRATA_APP_TOKEN: ${{ secrets.SOCRATA_APP_TOKEN }}   # optional, free from data.cityofchicago.org
+          SW_SKIP_GATE: ${{ inputs.skip_gate && '1' || '0' }}
+        # Fails without publishing if a backtest on the last 8 weeks shows the model worse than the KDE baseline.
         run: python train_weekly.py ../v1/chicago
       - name: Validate (fails the job instead of publishing bad files)
         run: python pipeline/reference/safewalk_format.py validate v1/chicago
@@ -39,3 +47,24 @@ jobs:
           git add -A v1
           git commit -m "Weekly forecast $(jq -r .risk.week_start v1/chicago/manifest.json)" || echo "no change"
           git push
+      # Alert: GitHub only emails the person who last edited the schedule, so also open an issue assigned to the
+      # repository owner (issues notify by email). Repeat failures comment on the same issue; a good run closes it.
+      - name: Open an issue if the run failed
+        if: failure()
+        env: {GH_TOKEN: "${{ github.token }}", GH_REPO: "${{ github.repository }}"}
+        run: |
+          run="${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+          msg="The weekly retrain on $(date -u +%F) failed, so nothing was published and the app keeps last week's forecast. Log: $run"
+          if [ -f pipeline/out/gate.md ]; then msg="$msg"$'\n\n'"$(cat pipeline/out/gate.md)"; fi
+          gh label create weekly-retrain-failed --color B60205 --description "The weekly model job failed" 2>/dev/null || true
+          n=$(gh issue list --label weekly-retrain-failed --state open --json number -q '.[0].number')
+          if [ -n "$n" ]; then gh issue comment "$n" --body "$msg"
+          else gh issue create --title "Weekly retrain failed" --label weekly-retrain-failed \
+                 --assignee "${{ github.repository_owner }}" --body "$msg"; fi
+      - name: Close the failure issue after a good run
+        if: success()
+        env: {GH_TOKEN: "${{ github.token }}", GH_REPO: "${{ github.repository }}"}
+        run: |
+          for n in $(gh issue list --label weekly-retrain-failed --state open --json number -q '.[].number'); do
+            gh issue close "$n" --comment "Fixed: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }} published this week's forecast."
+          done
