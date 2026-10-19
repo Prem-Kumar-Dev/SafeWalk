@@ -6,9 +6,9 @@ The executable definition is [`reference/safewalk_format.py`](reference/safewalk
 
 ## Hosting and URLs
 
-- Hosted on **GitHub Pages** from a public data repository (free). Base URL is a build-time constant in each app:
-  `DATA_BASE = https://<github-user>.github.io/safewalk-data/v1/chicago/`
-- Mirror for when Pages is slow or blocked: `https://cdn.jsdelivr.net/gh/<github-user>/safewalk-data@main/v1/chicago/` (also free). Apps try Pages first, then the mirror.
+- Hosted on **GitHub Pages** from the public `Prem-Kumar-Dev/SafeWalk` repository (free), where the weekly job commits `v1/chicago/`. Base URL is a build-time constant in each app:
+  `DATA_BASE = https://prem-kumar-dev.github.io/SafeWalk/v1/chicago/`
+- Mirror for when Pages is slow or blocked: `https://cdn.jsdelivr.net/gh/Prem-Kumar-Dev/SafeWalk@main/v1/chicago/` (also free). Apps try Pages first, then the mirror.
 - Paths in the manifest are relative to the folder the manifest was loaded from.
 - Graph and risk file names contain a hash of their content, so a given URL never changes content. Apps may cache them forever. Only `manifest.json` changes in place.
 - Old risk files stay published for 8 weeks so an app holding an older manifest can still download what it names.

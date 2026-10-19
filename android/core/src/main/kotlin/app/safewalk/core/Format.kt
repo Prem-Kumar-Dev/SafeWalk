@@ -3,6 +3,9 @@ package app.safewalk.core
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
+import kotlinx.serialization.json.JsonObject
+import kotlinx.serialization.json.JsonPrimitive
+import kotlinx.serialization.json.contentOrNull
 import java.io.ByteArrayOutputStream
 import java.nio.ByteBuffer
 import java.nio.ByteOrder
@@ -124,8 +127,12 @@ data class Manifest(
     @SerialName("generated_at") val generatedAt: String,
     val graph: GraphEntry,
     val risk: RiskEntry,
-    val model: Map<String, String> = emptyMap(),
+    // Free-form (the pipeline adds numbers such as "rounds"), so keep it as raw JSON.
+    val model: JsonObject = JsonObject(emptyMap()),
 ) {
+    /** A text field from `model`, for the About screen. */
+    fun modelText(key: String): String? = (model[key] as? JsonPrimitive)?.contentOrNull
+
     @Serializable
     data class GraphEntry(
         val path: String,

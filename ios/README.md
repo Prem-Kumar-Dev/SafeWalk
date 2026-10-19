@@ -32,8 +32,8 @@ checked line-for-line against the reference answers with a Python port.
 
 ## Before release
 
-- `SafeWalk/Data/` holds the real Chicago street graph and the forecast for the week of 30 Dec 2024, so first launch
-  works offline citywide. Before each release, copy in the latest published folder.
+- `SafeWalk/Data/` holds a copy of the published `v1/chicago/` folder (week of 19 Oct 2026), so first launch works
+  offline citywide. Before each release, refresh it with the script under "Bundled data" in `../android/README.md`.
 - The app checks `https://prem-kumar-dev.github.io/SafeWalk/v1/chicago/manifest.json` (mirror: jsDelivr) for new
   weekly files, set in `DataConfig` in `SafeWalk/Core/DataStore.swift`.
 - Set `AppInfo.feedbackURL` in `SafeWalk/Features/InfoViews.swift`.
