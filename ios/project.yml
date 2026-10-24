@@ -28,18 +28,18 @@ targets:
     info:
       path: SafeWalk/Info.plist
       properties:
-        CFBundleDisplayName: SafeWalk
+        CFBundleDisplayName: Lanternway
         CFBundleShortVersionString: "0.1.0"
         CFBundleVersion: "1"
         UILaunchScreen: {}
         UISupportedInterfaceOrientations: [UIInterfaceOrientationPortrait]
-        NSLocationWhenInUseUsageDescription: SafeWalk uses your location to show where you are and to start routes from there. It never leaves your phone.
+        NSLocationWhenInUseUsageDescription: Lanternway uses your location to show where you are and to start routes from there. It never leaves your phone.
         ITSAppUsesNonExemptEncryption: false
         # Plus Jakarta Sans (SIL OFL 1.1, Resources/Fonts/OFL.txt)
         UIAppFonts: [PlusJakartaSans-Regular.ttf, PlusJakartaSans-Medium.ttf, PlusJakartaSans-SemiBold.ttf, PlusJakartaSans-Bold.ttf]
     settings:
       base:
-        PRODUCT_BUNDLE_IDENTIFIER: com.prem.safewalk
+        PRODUCT_BUNDLE_IDENTIFIER: com.prem.lanternway
         SWIFT_VERSION: "5.0"
         TARGETED_DEVICE_FAMILY: "1"
         CODE_SIGN_STYLE: Automatic
@@ -61,7 +61,7 @@ targets:
       - target: SafeWalk
     settings:
       base:
-        PRODUCT_BUNDLE_IDENTIFIER: com.prem.safewalk.tests
+        PRODUCT_BUNDLE_IDENTIFIER: com.prem.lanternway.tests
         SWIFT_VERSION: "5.0"
 
 schemes:

@@ -108,7 +108,7 @@ Draw the chosen route as one line, coloured per piece by the same slot's thresho
 
 | Situation | Behaviour |
 |---|---|
-| Start or end outside the bbox | "SafeWalk covers Chicago only for now." |
+| Start or end outside the bbox | "Lanternway covers Chicago only for now." |
 | Start or end more than 150 m from a walkable street | "Move the pin closer to a street." |
 | Start and end snap within 20 m of each other | "You're already there." No route. |
 | Trip longer than 15 km | Allowed, with a note that it is a long walk. |

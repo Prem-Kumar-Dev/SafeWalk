@@ -1,6 +1,6 @@
 # Store listing text (draft)
 
-Draft copy for the App Store and Google Play. Character counts are checked against each store's limits. All text follows the wording rules in `app-spec/01-screens.md` (SafeWalk is the only use of "safe", always "reported" crimes, no area is ever called risky). Screenshots wait for the new coral design to land in both apps.
+Draft copy for the App Store and Google Play. Character counts are checked against each store's limits. All text follows the wording rules in `app-spec/01-screens.md` (never "safe" about a route or place, always "reported" crimes, no area is ever called risky). Screenshots wait for the new coral design to land in both apps.
 
 Privacy policy URL for both stores: `https://prem-kumar-dev.github.io/SafeWalk/privacy/`
 
@@ -13,9 +13,9 @@ Privacy policy URL for both stores: `https://prem-kumar-dev.github.io/SafeWalk/p
 
 ## App Store
 
-**Name** (30 max, 26 used)
+**Name** (30 max, 28 used)
 ```
-SafeWalk: Lower-Risk Walks
+Lanternway: Lower-Risk Walks
 ```
 
 **Subtitle** (30 max, 30 used)
@@ -35,9 +35,9 @@ walking,route,night,chicago,walk home,pedestrian,directions,campus,commute,stree
 
 **Description** (4000 max, about 1,400 used)
 ```
-SafeWalk gives walking directions in Chicago that suggest routes with fewer reported street crimes at this time of day, for only a little extra distance.
+Lanternway gives walking directions in Chicago that suggest routes with fewer reported street crimes at this time of day, for only a little extra distance.
 
-Pick where you're going, and SafeWalk shows two routes: the direct one, and a lower-risk one with how much lower its predicted risk is and how many minutes longer it takes. Choose the one you're comfortable with and start walking.
+Pick where you're going, and Lanternway shows two routes: the direct one, and a lower-risk one with how much lower its predicted risk is and how many minutes longer it takes. Choose the one you're comfortable with and start walking.
 
 HOW IT WORKS
 • Routes are scored with a forecast rebuilt every Monday from public City of Chicago crime reports.
@@ -52,7 +52,7 @@ PRIVATE BY DESIGN
 • Works offline once the weekly forecast has downloaded.
 
 PLEASE NOTE
-SafeWalk suggests routes that have had fewer reported street crimes. It is a lower-risk suggestion, not a guarantee of safety. Stay aware of your surroundings, and call 911 in an emergency. SafeWalk currently covers the City of Chicago only.
+Lanternway suggests routes that have had fewer reported street crimes. It is a lower-risk suggestion, not a guarantee of safety. Stay aware of your surroundings, and call 911 in an emergency. Lanternway currently covers the City of Chicago only.
 
 Data: City of Chicago Data Portal. Map data © OpenStreetMap contributors. Map tiles by OpenFreeMap.
 ```
@@ -62,16 +62,16 @@ Data: City of Chicago Data Portal. Map data © OpenStreetMap contributors. Map t
 
 **App Review notes** (for the reviewer, not public)
 ```
-SafeWalk covers Chicago only. Outside Chicago the map opens on the Loop with a "covers Chicago only" notice. To test, long-press the map to drop a start pin ("Start here"), then search for a destination such as "Navy Pier". No login is needed. Location is used only while the app is open and never leaves the device. The Call 911 button opens the dialer with 911 pre-filled and does not place a call.
+Lanternway covers Chicago only. Outside Chicago the map opens on the Loop with a "covers Chicago only" notice. To test, long-press the map to drop a start pin ("Start here"), then search for a destination such as "Navy Pier". No login is needed. Location is used only while the app is open and never leaves the device. The Call 911 button opens the dialer with 911 pre-filled and does not place a call.
 ```
 
 **App Privacy ("nutrition label"):** Data Not Collected. Place search goes through Apple's own MapKit, which Apple doesn't count as collection by the developer.
 
 ## Google Play
 
-**App name** (30 max, 26 used)
+**App name** (30 max, 28 used)
 ```
-SafeWalk: Lower-Risk Walks
+Lanternway: Lower-Risk Walks
 ```
 
 **Short description** (80 max, 76 used)

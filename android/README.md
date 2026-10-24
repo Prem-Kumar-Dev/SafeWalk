@@ -1,4 +1,4 @@
-# SafeWalk for Android
+# Lanternway for Android
 
 Native Android app (Kotlin, Jetpack Compose, MapLibre with OpenFreeMap tiles) built to `../app-spec/`.
 
