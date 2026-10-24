@@ -135,5 +135,5 @@ struct TextPage: View {
 
 enum AppInfo {
     /// Replace with your support address before release.
-    static let feedbackURL = URL(string: "mailto:feedback@example.com?subject=SafeWalk")!
+    static let feedbackURL = URL(string: "mailto:feedback@example.com?subject=Lanternway")!
 }

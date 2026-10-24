@@ -1,15 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <!-- Keys shared with iOS (app-spec/01-screens.md). Keep the wording identical on both platforms. -->
-    <string name="app_name">SafeWalk</string>
+    <string name="app_name">Lanternway</string>
     <string name="welcome_1">Walk the way that\'s had fewer reported street crimes.</string>
-    <string name="welcome_2">Pick where you\'re going. SafeWalk shows the direct route and a lower-risk route, and how much longer it is.</string>
+    <string name="welcome_2">Pick where you\'re going. Lanternway shows the direct route and a lower-risk route, and how much longer it is.</string>
     <string name="welcome_3">Everything runs on your phone. Your location and trips are never sent anywhere.</string>
-    <string name="disclaimer_body">SafeWalk suggests routes that have had fewer reported street crimes at this time of day. It is a lower-risk suggestion, not a guarantee of safety. Stay aware of your surroundings, and call 911 in an emergency.</string>
+    <string name="disclaimer_body">Lanternway suggests routes that have had fewer reported street crimes at this time of day. It is a lower-risk suggestion, not a guarantee of safety. Stay aware of your surroundings, and call 911 in an emergency.</string>
     <string name="disclaimer_accept">I understand</string>
-    <string name="welcome_1_body">SafeWalk suggests walking routes in Chicago with fewer reported street crimes at this time of day.</string>
+    <string name="welcome_1_body">Lanternway suggests walking routes in Chicago with fewer reported street crimes at this time of day.</string>
     <string name="welcome_2_title">Pick where you\'re going.</string>
-    <string name="welcome_2_body">SafeWalk shows the direct route and a lower-risk route, and how much longer it is.</string>
+    <string name="welcome_2_body">Lanternway shows the direct route and a lower-risk route, and how much longer it is.</string>
     <string name="welcome_3_title">Everything runs on your phone.</string>
     <string name="welcome_3_body">Your location and trips are never sent anywhere.</string>
     <string name="skip">Skip</string>
@@ -19,7 +19,7 @@
     <string name="disclaimer_point_2">Lower risk, not a guarantee</string>
     <string name="disclaimer_point_3">Call 911 is one tap away while walking</string>
     <string name="location_title">Start routes from where you are</string>
-    <string name="location_body">SafeWalk uses your location to start routes from where you are. You can skip this and drop a pin on the map instead.</string>
+    <string name="location_body">Lanternway uses your location to start routes from where you are. You can skip this and drop a pin on the map instead.</string>
     <string name="location_private">Stays on this phone. Never sent anywhere.</string>
     <string name="route_shortest">Shortest</string>
     <string name="route_fastest">fastest</string>
@@ -39,7 +39,7 @@
     <string name="route_fine_print">Based on reported crimes. Lower risk, not a guarantee.</string>
     <string name="forecast_age">Forecast from the week of %1$s.</string>
     <string name="forecast_stale">This forecast is out of date. Connect to the internet to update.</string>
-    <string name="outside_coverage">SafeWalk covers Chicago only for now.</string>
+    <string name="outside_coverage">Lanternway covers Chicago only for now.</string>
     <string name="map_offline">You\'re offline, so the street map can\'t load. Routes still work.</string>
     <string name="no_dialer">This device can\'t make phone calls. Dial 911 from a phone.</string>
     <string name="too_far_from_street">Move the pin closer to a street.</string>
@@ -129,12 +129,12 @@
     <string name="about">About and how it works</string>
     <string name="privacy">Privacy</string>
     <string name="disclaimer">Disclaimer</string>
-    <string name="about_body_1">SafeWalk uses ten years of crime reports published by the City of Chicago, counting street crimes against people (such as robbery and assault) in public places, not domestic incidents. A forecasting model predicts, for each block and each part of the day, how often such crimes are reported compared with the city average. When you ask for a route, your phone finds a path that keeps walking distance low while passing fewer of the higher-risk blocks. In tests on 2024 data the model had not seen, the Balanced route was about 4% longer and passed about half as many real reported crimes as the shortest route.</string>
+    <string name="about_body_1">Lanternway uses ten years of crime reports published by the City of Chicago, counting street crimes against people (such as robbery and assault) in public places, not domestic incidents. A forecasting model predicts, for each block and each part of the day, how often such crimes are reported compared with the city average. When you ask for a route, your phone finds a path that keeps walking distance low while passing fewer of the higher-risk blocks. In tests on 2024 data the model had not seen, the Balanced route was about 4% longer and passed about half as many real reported crimes as the shortest route.</string>
     <string name="about_body_2">Reported crime is not the same as all crime, and reporting and policing differ between places. Treat the route as one input to your own judgement.</string>
     <string name="about_sources">Data sources: City of Chicago Data Portal (crimes ijzp-q8t2, street centerlines pr57-gg9e). Map data © OpenStreetMap contributors (ODbL). Map tiles by OpenFreeMap, built with OpenMapTiles. Map rendering by MapLibre.</string>
     <string name="about_model">Model %1$s · forecast for the week of %2$s</string>
     <string name="about_contact">Feedback: %1$s</string>
-    <string name="privacy_body">SafeWalk does not collect, store on a server, or share your location, your searches or your trips. Routes are calculated on your phone. The app downloads map tiles and the weekly forecast file, which tells those servers your IP address as any download does. Place search uses Apple\'s or Google\'s built-in search on your phone, under their privacy terms.</string>
+    <string name="privacy_body">Lanternway does not collect, store on a server, or share your location, your searches or your trips. Routes are calculated on your phone. The app downloads map tiles and the weekly forecast file, which tells those servers your IP address as any download does. Place search uses Apple\'s or Google\'s built-in search on your phone, under their privacy terms.</string>
     <string name="map_attribution">© OpenFreeMap © OpenMapTiles © OpenStreetMap contributors</string>
     <string name="loading_data">Loading Chicago streets…</string>
     <string name="data_failed">Couldn\'t load the street data: %1$s</string>

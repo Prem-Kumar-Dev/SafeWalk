@@ -1,14 +1,14 @@
-/* SafeWalk strings. Keys shared with Android (app-spec/01-screens.md, "Accessibility and polish").
+/* Lanternway strings. Keys shared with Android (app-spec/01-screens.md, "Accessibility and polish").
    Follow the wording rules in 01-screens.md before changing any text. */
 
 "welcome_1" = "Walk the way that's had fewer reported street crimes.";
-"welcome_2" = "Pick where you're going. SafeWalk shows the direct route and a lower-risk route, and how much longer it is.";
+"welcome_2" = "Pick where you're going. Lanternway shows the direct route and a lower-risk route, and how much longer it is.";
 "welcome_3" = "Everything runs on your phone. Your location and trips are never sent anywhere.";
-"disclaimer_body" = "SafeWalk suggests routes that have had fewer reported street crimes at this time of day. It is a lower-risk suggestion, not a guarantee of safety. Stay aware of your surroundings, and call 911 in an emergency.";
+"disclaimer_body" = "Lanternway suggests routes that have had fewer reported street crimes at this time of day. It is a lower-risk suggestion, not a guarantee of safety. Stay aware of your surroundings, and call 911 in an emergency.";
 "disclaimer_accept" = "I understand";
-"welcome_1_body" = "SafeWalk suggests walking routes in Chicago with fewer reported street crimes at this time of day.";
+"welcome_1_body" = "Lanternway suggests walking routes in Chicago with fewer reported street crimes at this time of day.";
 "welcome_2_title" = "Pick where you're going.";
-"welcome_2_body" = "SafeWalk shows the direct route and a lower-risk route, and how much longer it is.";
+"welcome_2_body" = "Lanternway shows the direct route and a lower-risk route, and how much longer it is.";
 "welcome_3_title" = "Everything runs on your phone.";
 "welcome_3_body" = "Your location and trips are never sent anywhere.";
 "skip" = "Skip";
@@ -18,7 +18,7 @@
 "disclaimer_point_2" = "Lower risk, not a guarantee";
 "disclaimer_point_3" = "Call 911 is one tap away while walking";
 "location_title" = "Start routes from where you are";
-"location_body" = "SafeWalk uses your location to start routes from where you are. You can skip this and drop a pin on the map instead.";
+"location_body" = "Lanternway uses your location to start routes from where you are. You can skip this and drop a pin on the map instead.";
 "location_private" = "Stays on this phone. Never sent anywhere.";
 "route_shortest" = "Shortest";
 "route_fastest" = "fastest";
@@ -64,7 +64,7 @@
 "start_walking" = "Start walking";
 "unnamed_path" = "path";
 
-"outside_coverage" = "SafeWalk covers Chicago only for now.";
+"outside_coverage" = "Lanternway covers Chicago only for now.";
 "too_far_from_street" = "Move the pin closer to a street.";
 "already_there" = "You're already there.";
 "no_route" = "No walking route found between these points.";
@@ -116,10 +116,10 @@
 "update_app" = "Update the app to get new forecasts";
 "loading_data" = "Loading the street map…";
 
-"about_body" = "SafeWalk uses ten years of crime reports published by the City of Chicago, counting street crimes against people (such as robbery and assault) in public places, not domestic incidents. A forecasting model predicts, for each block and each part of the day, how often such crimes are reported compared with the city average. When you ask for a route, your phone finds a path that keeps walking distance low while passing fewer of the higher-risk blocks. In tests on 2024 data the model had not seen, the Balanced route was about 4% longer and passed about half as many real reported crimes as the shortest route.\n\nReported crime is not the same as all crime, and reporting and policing differ between places. Treat the route as one input to your own judgement.";
+"about_body" = "Lanternway uses ten years of crime reports published by the City of Chicago, counting street crimes against people (such as robbery and assault) in public places, not domestic incidents. A forecasting model predicts, for each block and each part of the day, how often such crimes are reported compared with the city average. When you ask for a route, your phone finds a path that keeps walking distance low while passing fewer of the higher-risk blocks. In tests on 2024 data the model had not seen, the Balanced route was about 4% longer and passed about half as many real reported crimes as the shortest route.\n\nReported crime is not the same as all crime, and reporting and policing differ between places. Treat the route as one input to your own judgement.";
 "about_sources" = "Data sources and licences";
 "about_sources_body" = "City of Chicago Data Portal: crimes (ijzp-q8t2) and street centerlines (pr57-gg9e).\nMap data © OpenStreetMap contributors (ODbL).\nMap tiles © OpenFreeMap © OpenMapTiles.\nMap rendering by MapLibre.";
 "about_model" = "Model %@ · forecast for the week of %@";
 "about_feedback" = "Send feedback";
-"privacy_body" = "SafeWalk does not collect, store on a server, or share your location, your searches or your trips. Routes are calculated on your phone. The app downloads map tiles and the weekly forecast file, which tells those servers your IP address as any download does. Place search uses Apple's or Google's built-in search on your phone, under their privacy terms.";
-"outside_notice" = "SafeWalk covers Chicago only for now";
+"privacy_body" = "Lanternway does not collect, store on a server, or share your location, your searches or your trips. Routes are calculated on your phone. The app downloads map tiles and the weekly forecast file, which tells those servers your IP address as any download does. Place search uses Apple's or Google's built-in search on your phone, under their privacy terms.";
+"outside_notice" = "Lanternway covers Chicago only for now";

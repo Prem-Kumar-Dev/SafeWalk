@@ -1,4 +1,4 @@
-# Run and test SafeWalk on an Android phone (VS Code + adb, no Android Studio)
+# Run and test Lanternway on an Android phone (VS Code + adb, no Android Studio)
 
 This uses about 6 GB of disk space: the JDK, the command-line Android SDK, and Gradle's download cache. No emulator is needed.
 
@@ -81,9 +81,9 @@ If the build fails, copy the first `e:` error lines (file, line number and messa
 
 ## 4. Watch the logs
 
-Only SafeWalk's logs (PowerShell):
+Only Lanternway's logs (PowerShell):
 ```powershell
-adb logcat --pid=$(adb shell pidof -s com.prem.safewalk)
+adb logcat --pid=$(adb shell pidof -s com.prem.lanternway)
 ```
 Only errors and crashes from any app:
 ```powershell
@@ -120,5 +120,5 @@ You don't need to be in Chicago. Search works for Chicago places from anywhere, 
 ## Uninstall
 
 ```powershell
-adb uninstall com.prem.safewalk
+adb uninstall com.prem.lanternway
 ```

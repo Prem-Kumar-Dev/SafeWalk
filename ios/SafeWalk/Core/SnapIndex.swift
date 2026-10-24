@@ -11,7 +11,7 @@ struct SnapPoint: Equatable, Sendable {
 }
 
 enum SnapFailure: Error, Equatable {
-    case outsideCoverage     // "SafeWalk covers Chicago only for now."
+    case outsideCoverage     // "Lanternway covers Chicago only for now."
     case tooFarFromStreet    // "Move the pin closer to a street."
 }
 

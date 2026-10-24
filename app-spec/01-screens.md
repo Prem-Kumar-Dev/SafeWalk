@@ -24,12 +24,12 @@ The street graph comes from City of Chicago centerlines and the base map from Op
 Three short pages, then the agreement:
 
 1. "Walk the way that's had fewer reported street crimes." Picture: two route lines.
-2. "Pick where you're going. SafeWalk shows the direct route and a lower-risk route, and how much longer it is."
+2. "Pick where you're going. Lanternway shows the direct route and a lower-risk route, and how much longer it is."
 3. "Everything runs on your phone. Your location and trips are never sent anywhere."
 
 Then the **disclaimer** card, which the user must accept once with "I understand":
 
-> SafeWalk suggests routes that have had fewer reported street crimes at this time of day. It is a lower-risk suggestion, not a guarantee of safety. Stay aware of your surroundings, and call 911 in an emergency.
+> Lanternway suggests routes that have had fewer reported street crimes at this time of day. It is a lower-risk suggestion, not a guarantee of safety. Stay aware of your surroundings, and call 911 in an emergency.
 
 Then location permission, asked with the system prompt after a one-line reason: "To start routes from where you are." "Not now" is fine; the app works with a dropped pin.
 
@@ -40,7 +40,7 @@ Then location permission, asked with the system prompt after a one-line reason: 
 - Location button, compass when rotated.
 - Long-press anywhere on the map: drops a pin with "Walk here" and "Start here".
 - No risk colouring of streets or areas on this screen, ever (see Wording rules).
-- If the user is outside the Chicago bbox: a slim notice "SafeWalk covers Chicago only for now". Search still works for Chicago places.
+- If the user is outside the Chicago bbox: a slim notice "Lanternway covers Chicago only for now". Search still works for Chicago places.
 
 ### 3. Search
 
@@ -86,7 +86,7 @@ Bottom sheet:
 
 Plain-language explanation:
 
-> SafeWalk uses ten years of crime reports published by the City of Chicago, counting street crimes against people (such as robbery and assault) in public places, not domestic incidents. A forecasting model predicts, for each block and each part of the day, how often such crimes are reported compared with the city average. When you ask for a route, your phone finds a path that keeps walking distance low while passing fewer of the higher-risk blocks. In tests on 2024 data the model had not seen, the Balanced route was about 4% longer and passed about half as many real reported crimes as the shortest route.
+> Lanternway uses ten years of crime reports published by the City of Chicago, counting street crimes against people (such as robbery and assault) in public places, not domestic incidents. A forecasting model predicts, for each block and each part of the day, how often such crimes are reported compared with the city average. When you ask for a route, your phone finds a path that keeps walking distance low while passing fewer of the higher-risk blocks. In tests on 2024 data the model had not seen, the Balanced route was about 4% longer and passed about half as many real reported crimes as the shortest route.
 >
 > Reported crime is not the same as all crime, and reporting and policing differ between places. Treat the route as one input to your own judgement.
 
@@ -96,7 +96,7 @@ Data sources and licences: City of Chicago Data Portal (crimes `ijzp-q8t2`, stre
 
 One screen, also used as the store privacy policy page (hosted on the same GitHub Pages site):
 
-> SafeWalk does not collect, store on a server, or share your location, your searches or your trips. Routes are calculated on your phone. The app downloads map tiles and the weekly forecast file, which tells those servers your IP address as any download does. Place search uses Apple's or Google's built-in search on your phone, under their privacy terms.
+> Lanternway does not collect, store on a server, or share your location, your searches or your trips. Routes are calculated on your phone. The app downloads map tiles and the weekly forecast file, which tells those servers your IP address as any download does. Place search uses Apple's or Google's built-in search on your phone, under their privacy terms.
 
 Both store privacy labels: **Data not collected**.
 
@@ -115,7 +115,7 @@ Do not:
 
 - Name or label any neighbourhood, community area, ward, park or district as risky, dangerous, unsafe or bad. Place names appear only as search results and street names.
 - Colour, shade or heat-map areas or streets that are not on the user's own route.
-- Use "safe route", "safe area", "dangerous", "avoid this neighbourhood", "bad part of town", or "danger zone". The product name SafeWalk is the only use of "safe".
+- Use "safe route", "safe area", "dangerous", "avoid this neighbourhood", "bad part of town", or "danger zone". Never use "safe" about a route or a place.
 - Show risk numbers, multiples of the average, crime counts or crime types for a place.
 - Send notifications about places ("You are entering…").
 

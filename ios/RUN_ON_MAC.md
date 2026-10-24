@@ -1,4 +1,4 @@
-# Run and test SafeWalk iOS on your Mac and iPhone
+# Run and test Lanternway iOS on your Mac and iPhone
 
 You can edit in VS Code, but building for an iPhone needs Apple's Xcode tools. There's no way around that.
 You open Xcode once to sign in. After that, everything below runs from the VS Code terminal.
@@ -35,7 +35,7 @@ Run `xcodegen` again whenever files are added or `project.yml` changes.
    Your team will show up as "Your Name (Personal Team)".
 2. Run `open SafeWalk.xcodeproj`. Select the **SafeWalk** target and open **Signing & Capabilities**.
    Tick *Automatically manage signing* and pick your Personal Team.
-3. The **Bundle Identifier** is already `com.prem.safewalk` (set in `project.yml`).
+3. The **Bundle Identifier** is already `com.prem.lanternway` (set in `project.yml`).
    To make your team stick when you re-run `xcodegen`, put it in `project.yml` as
    `DEVELOPMENT_TEAM: "<your team id>"`. The team ID is the 10-character code
    shown under Membership details at developer.apple.com/account, or in the Signing panel.
@@ -54,7 +54,7 @@ Run `xcodegen` again whenever files are added or `project.yml` changes.
      -allowProvisioningUpdates -derivedDataPath build build
    xcrun devicectl device install app --device <phone-identifier> \
      build/Build/Products/Debug-iphoneos/SafeWalk.app
-   xcrun devicectl device process launch --device <phone-identifier> com.prem.safewalk
+   xcrun devicectl device process launch --device <phone-identifier> com.prem.lanternway
    ```
    With SweetPad, choose the scheme and the device and press Run.
 4. The first launch may say "Untrusted Developer". On the phone, go to **Settings → General → VPN & Device Management**,
@@ -92,7 +92,7 @@ The run ends with `** TEST SUCCEEDED **`. In Xcode, **⌘U** runs the same tests
 
 - **Compile errors on the first build:** this code was written without a Mac. Paste the errors into the iOS thread
   and they'll be fixed.
-- **"No profiles for 'com.prem.safewalk'":** pick your team in Signing & Capabilities (step 3.2).
+- **"No profiles for 'com.prem.lanternway'":** pick your team in Signing & Capabilities (step 3.2).
 - **"Could not locate device support files":** update Xcode, or open Xcode with the phone connected and wait for it
   to finish "Preparing iPhone".
 - **MapLibre package not found:** in Xcode, use **File → Packages → Resolve Package Versions**.
