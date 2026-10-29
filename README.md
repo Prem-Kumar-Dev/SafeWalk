@@ -1,4 +1,4 @@
-# SafeWalk
+# Lanternway
 
 Safer walking routes for Chicago. A weekly crime-risk model scores every street block, and the Android and iOS apps use that score to suggest a walking route that avoids the riskiest blocks for a small extra distance.
 

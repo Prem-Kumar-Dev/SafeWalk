@@ -1,4 +1,4 @@
-# SafeWalk for iOS
+# Lanternway for iOS
 
 Native Swift/SwiftUI app built to `app-spec/` (format version 1). iOS 16+, iPhone, portrait.
 Map: MapLibre Native (Swift Package) with OpenFreeMap tiles. Search: Apple `MKLocalSearch`. Routing: on the phone.
@@ -15,7 +15,7 @@ open SafeWalk.xcodeproj
 ```
 
 1. In Xcode, pick the **SafeWalk** target > Signing & Capabilities and choose your team. The bundle id is
-   `com.prem.safewalk` (set in `project.yml`).
+   `com.prem.lanternway` (set in `project.yml`).
 2. Xcode downloads MapLibre the first time (File > Packages > Resolve if it doesn't).
 3. Run on an iPhone simulator or your phone. Routing works anywhere in Chicago. In the simulator, set a Chicago
    location with Features > Location > Custom (e.g. 41.8815, -87.6275).

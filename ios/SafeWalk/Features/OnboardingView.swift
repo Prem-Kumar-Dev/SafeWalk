@@ -28,7 +28,7 @@ struct OnboardingView: View {
                 HStack(spacing: 8) {
                     LogoMark().stroke(SW.coralInk, style: StrokeStyle(lineWidth: 2.5, lineCap: .round, lineJoin: .round))
                         .frame(width: 18, height: 18)
-                    Text("SafeWalk").font(.jakarta(15, .semibold)).foregroundStyle(SW.coralInk)
+                    Text("Lanternway").font(.jakarta(15, .semibold)).foregroundStyle(SW.coralInk)
                     Spacer()
                     if page < 2 {
                         Button(L10n.s("skip")) { page = 3 }

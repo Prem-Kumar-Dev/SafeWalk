@@ -12,14 +12,14 @@ What only Prem can do, in the order that avoids waiting. The repo side (privacy 
 ## Before the first upload
 
 5. **Check the privacy page is live.** GitHub Pages already serves the weekly data from `main`, so once this PR is merged `https://prem-kumar-dev.github.io/SafeWalk/privacy/` should open. Both stores check that the URL works.
-6. **iOS bundle ID** is set to `com.prem.safewalk` in `ios/project.yml`. Pick your team in Xcode → Signing & Capabilities, and Xcode registers the ID on your Apple account the first time it signs.
-7. **Android package name** is `com.prem.safewalk`, the same as iOS. Play never lets you change it after the first upload.
+6. **iOS bundle ID** is set to `com.prem.lanternway` in `ios/project.yml`. Pick your team in Xcode → Signing & Capabilities, and Xcode registers the ID on your Apple account the first time it signs.
+7. **Android package name** is `com.prem.lanternway`, the same as iOS. Play never lets you change it after the first upload.
 8. **Android signing key.** Create an upload key (Android Studio → Build → Generate Signed Bundle) and keep the `.jks` file and its passwords somewhere safe outside the repo. Let Play App Signing manage the release key.
 9. **App icon.** Both apps still use a placeholder. Item 3 of the plan covers this; both stores need a final icon (1024 × 1024 for Apple, 512 × 512 for Play).
 
 ## Google Play, step by step
 
-10. Create the app in Play Console: name "SafeWalk: Lower-Risk Walks", free, app (not game).
+10. Create the app in Play Console: name "Lanternway: Lower-Risk Walks", free, app (not game).
 11. Fill in App content: privacy policy URL, Data safety (answers in `listing.md`), ads = no, target audience = 18+, content rating questionnaire, news app = no.
 12. Build the release bundle: `cd android && ./gradlew :app:bundleRelease`, sign it with your upload key, and upload the `.aab` to **Testing → Closed testing**.
 13. Add your testers' emails as a list, send them the opt-in link, and **start the 14-day clock** by publishing the closed test release.
@@ -27,7 +27,7 @@ What only Prem can do, in the order that avoids waiting. The repo side (privacy 
 
 ## App Store, step by step
 
-15. In App Store Connect create the app with your bundle ID, name "SafeWalk: Lower-Risk Walks", primary language English (U.S.).
+15. In App Store Connect create the app with your bundle ID, name "Lanternway: Lower-Risk Walks", primary language English (U.S.).
 16. On a Mac: `cd ios && xcodegen`, open the project, select "Any iOS Device", then Product → Archive → Distribute App → App Store Connect.
 17. **TestFlight:** the build appears after processing. Add yourself and a few friends as internal or external testers and do a few real walks. External testers need a short beta review the first time.
 18. Fill in the listing from `listing.md`, the App Privacy answer ("Data Not Collected"), the age rating, and the App Review notes, then submit for review.

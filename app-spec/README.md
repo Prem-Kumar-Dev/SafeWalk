@@ -1,6 +1,6 @@
-# SafeWalk app spec (version 1)
+# Lanternway app spec (version 1)
 
-SafeWalk is an indie app for **native Android and native iOS** that suggests walking routes in Chicago passing fewer reported street crimes, with a clear "lower risk, not a guarantee" message. Everything runs on free services: a weekly GitHub Actions job publishes static files to GitHub Pages, the phone downloads them and does all routing itself, and maps come from MapLibre with OpenFreeMap (OpenStreetMap) tiles. Chicago is the only city at launch.
+Lanternway is an indie app for **native Android and native iOS** that suggests walking routes in Chicago passing fewer reported street crimes, with a clear "lower risk, not a guarantee" message. Everything runs on free services: a weekly GitHub Actions job publishes static files to GitHub Pages, the phone downloads them and does all routing itself, and maps come from MapLibre with OpenFreeMap (OpenStreetMap) tiles. Chicago is the only city at launch.
 
 | File | For | What's in it |
 |---|---|---|
