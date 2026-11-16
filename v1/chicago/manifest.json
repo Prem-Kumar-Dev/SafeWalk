@@ -10,7 +10,7 @@
     42.022927,
     -87.524527
   ],
-  "generated_at": "2026-11-09T20:31:07Z",
+  "generated_at": "2026-11-16T20:19:21Z",
   "graph": {
     "path": "graph-f64f602807eddbe1.bin",
     "graph_id": "f64f602807eddbe1",
@@ -19,18 +19,18 @@
     "sha256": "bfa72b5c01a7a705bbc3aaa6f5e3520e161e4af2cc37186ac121f5da2b90f5a6"
   },
   "risk": {
-    "path": "risk-2026-11-09-8e50a6e6a01e.bin",
-    "week_start": "2026-11-09",
-    "valid_until": "2026-11-16",
-    "bytes": 530165,
+    "path": "risk-2026-11-16-f6c4fabc1cc4.bin",
+    "week_start": "2026-11-16",
+    "valid_until": "2026-11-23",
+    "bytes": 529707,
     "raw_bytes": 1226412,
-    "sha256": "8e50a6e6a01e54d61aaa8478ae0506b1af76ad193e1c39dbe8263c8fdf97f60f"
+    "sha256": "f6c4fabc1cc41477e8c7c23c5e75b92ae93de962e120d85d84f1e622baa46e51"
   },
   "model": {
     "name": "lightgbm-poisson+stnet",
-    "version": "2026.46",
-    "trained_through": "2026-10-25",
+    "version": "2026.47",
+    "trained_through": "2026-11-01",
     "features": "base+harm+ctx+s311+lic+cta+events",
-    "rounds": 611
+    "rounds": 688
   }
 }
